@@ -83,7 +83,8 @@ contract LongVault is AccessControl {
     }
 
     // Deposit Ether
-    function depositEther() public payable onlyRole(ADMIN_ROLE) {
+    function deposit() public payable virtual onlyRole(ADMIN_ROLE) {
+        // uint amount = msg.value;
         emit EtherDeposited(block.timestamp, msg.value);
     }
 
