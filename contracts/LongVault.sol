@@ -48,12 +48,12 @@ contract LongVault is AccessControl {
     EtherRelease[] public etherReleases;
     ERC20Release[] public erc20Releases;
 
+    mapping(address => uint) public erc20Tokens;
+
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     bytes32 public constant BENEFICIARY_ROLE = keccak256("BENEFICIARY_ROLE");
     address public admin;
     address payable public beneficiary;
-
-    mapping(address => uint) public erc20Tokens;
     
     uint public createdAt;
     uint public totalReleaseCount;
@@ -154,6 +154,16 @@ contract LongVault is AccessControl {
     // ERC20 token balance
     function getERC20Balance(address token_) public view returns (uint) {
         return erc20Tokens[token_];
+    }
+
+    // Ether releases
+    function getEtherReleases() public view returns (EtherRelease[] memory) {
+        return etherReleases;
+    }
+
+    // ERC20 token releases
+    function getERC20Releases() public view returns (ERC20Release[] memory) {
+        return erc20Releases;
     }
     
 }
