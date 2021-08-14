@@ -72,23 +72,33 @@ contract LongVault is AccessControl {
         createdAt = block.timestamp;
     }
 
-    // Receive ETH (when msg.data is empty)
+    /**
+     * @dev Receive ETH (when msg.data is empty)
+     */
     receive() external payable {
-        // TODO: Implement as needed
+        /// TODO: Implement as needed
     }
 
-    // Called when msg.data is not empty
+    /**
+     * @dev Called when msg.data is not empty
+     */
     fallback() external payable {
 
     }
 
-    // Deposit Ether
+    /**
+     * @dev Called when msg.data is not empty
+     */
     function deposit() public payable virtual onlyRole(ADMIN_ROLE) {
-        // uint amount = msg.value;
+        /// uint amount = msg.value;
         emit EtherDeposited(block.timestamp, msg.value);
     }
 
-    // Deposit ERC20 tokens
+    /**
+     * @dev Called when msg.data is not empty
+     * @param token_ The address of the ERC20 token to deposit.
+     * @param amount_ The amount of the ERC20 token to be deposited.
+     */
     function depositERC20(
         address token_,
         uint amount_
@@ -99,22 +109,32 @@ contract LongVault is AccessControl {
         emit ERC20Deposited(token_, block.timestamp, amount_);
     }
 
-    // Release ether to beneficiary
+    /**
+     * @dev Release ether to beneficiary.
+     * @param release_ The EtherRelease object to use as the release.
+     */
     function releaseEther(EtherRelease memory release_) public onlyRole(ADMIN_ROLE) {
         uint amount = release_.amount;
         beneficiary.sendValue(amount);
         emit EtherReleased(block.timestamp, amount);
     }
 
-    // Release ERC20 tokens to beneficiary
+    /**
+     * @dev Release ERC20 tokens to beneficiary.
+     * @param release_ The ERC20Release object to use as the release.
+     */
     function releaseERC20(ERC20Release memory release_) public onlyRole(ADMIN_ROLE) {
         address token = release_.token;
         uint amount = release_.amount;
-        // TODO: Send tokens to beneficiary wallet
+        /// TODO: Send tokens to beneficiary wallet
         emit ERC20Released(token, block.timestamp, amount);
     }
 
-    // Create and add a new ether Release
+    /**
+     * @dev Create and add a new ether Release.
+     * @param amount_ The amount of Ether to be released.
+     * @param releaseTimestamp_ The future unix timestamp of when the release will occur.
+     */
     function createEtherRelease(
         uint amount_,
         uint releaseTimestamp_
@@ -129,7 +149,12 @@ contract LongVault is AccessControl {
         totalReleaseCount++;
     }
 
-    // Create and add a new ERC20 token Release
+    /**
+     * @dev Create and add a new ERC20 token Release
+     * @param token_ The address of the ERC20 token to release.
+     * @param amount_ The amount of the ERC20 token to be released.
+     * @param releaseTimestamp_ The future unix timestamp of when the release will occur.
+     */
     function createERC20Release(
         address token_,
         uint amount_,
@@ -146,22 +171,31 @@ contract LongVault is AccessControl {
         totalReleaseCount++;
     }
 
-    // Ether balance
+    /**
+     * @dev Get Ether balance
+     */
     function getEtherBalance() public view returns (uint) {
         return address(this).balance;
     }
 
-    // ERC20 token balance
+    /**
+     * @dev Get ERC20 token balances
+     * @param token_ The address of the ERC20 token to get the balance of.
+     */
     function getERC20Balance(address token_) public view returns (uint) {
         return erc20Tokens[token_];
     }
 
-    // Ether releases
+    /**
+     * @dev Get Ether releases
+     */
     function getEtherReleases() public view returns (EtherRelease[] memory) {
         return etherReleases;
     }
 
-    // ERC20 token releases
+    /**
+     * @dev Get ERC20 token releases
+     */
     function getERC20Releases() public view returns (ERC20Release[] memory) {
         return erc20Releases;
     }
