@@ -13,7 +13,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 // - TODO: Ensure eth receive() works as intended
 // - TODO: Figure out of fallback() is necessary
 
-// > LongVault opertation & maintainence
+// > LongVault operation & maintainence 
 // - TODO: Create release() calling mechanism
 // -- Needs to check current datetime against Release struct/object timestamps
 
@@ -35,6 +35,7 @@ contract LongVault is AccessControl {
         uint amount;
         uint timestamp;
         bool released;
+        bool repeatedAnnually;
     }
 
     struct ERC20Release {
@@ -43,6 +44,7 @@ contract LongVault is AccessControl {
         uint amount;
         uint timestamp;
         bool released;
+        bool repeatedAnnually;
     }
 
     EtherRelease[] public etherReleases;
@@ -135,6 +137,7 @@ contract LongVault is AccessControl {
      * @param amount_ The amount of Ether to be released.
      * @param releaseTimestamp_ The future unix timestamp of when the release will occur.
      */
+    /// TODO: Add and build support for repeatedAnnually bool param
     function createEtherRelease(
         uint amount_,
         uint releaseTimestamp_
@@ -143,7 +146,8 @@ contract LongVault is AccessControl {
             id: etherReleaseCount,
             amount: amount_,
             timestamp: releaseTimestamp_,
-            released: false
+            released: false,
+            repeatedAnnually: false
         }));
         etherReleaseCount++;
         totalReleaseCount++;
@@ -155,6 +159,7 @@ contract LongVault is AccessControl {
      * @param amount_ The amount of the ERC20 token to be released.
      * @param releaseTimestamp_ The future unix timestamp of when the release will occur.
      */
+    /// TODO: Add and build support for repeatedAnnually bool param
     function createERC20Release(
         address token_,
         uint amount_,
@@ -165,7 +170,8 @@ contract LongVault is AccessControl {
             token: token_,
             amount: amount_,
             timestamp: releaseTimestamp_,
-            released: false
+            released: false,
+            repeatedAnnually: false
         }));
         erc20ReleaseCount++;
         totalReleaseCount++;
