@@ -11,6 +11,7 @@
   "license": "MIT",
   "devDependencies": {
     "@openzeppelin/contracts": "^4.2.0",
+    "@openzeppelin/test-helpers": "^0.5.13",
     "chai": "^4.3.4",
     "ganache-cli": "^6.12.2",
     "truffle": "^5.4.5"

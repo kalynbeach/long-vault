@@ -25,8 +25,10 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 contract LongVault is AccessControl {
     using Address for address payable;
 
+    event EtherReleaseCreated(uint timestamp, uint amount);
     event EtherDeposited(uint timestamp, uint amount);
     event EtherReleased(uint timestamp, uint amount);
+    event ERC20ReleaseCreated(address token, uint timestamp, uint amount);
     event ERC20Deposited(address token, uint timestamp, uint amount);
     event ERC20Released(address token, uint timestamp, uint amount);
 
@@ -149,6 +151,7 @@ contract LongVault is AccessControl {
             released: false,
             repeatedAnnually: false
         }));
+        emit EtherReleaseCreated(releaseTimestamp_, amount_);
         etherReleaseCount++;
         totalReleaseCount++;
     }
@@ -173,6 +176,7 @@ contract LongVault is AccessControl {
             released: false,
             repeatedAnnually: false
         }));
+        emit ERC20ReleaseCreated(token_, releaseTimestamp_, amount_);
         erc20ReleaseCount++;
         totalReleaseCount++;
     }
