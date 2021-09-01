@@ -1,15 +1,36 @@
-const { expect } = require('chai');
+const { accounts, contract } = require('@openzeppelin/test-environment');
 const { BN, expectEvent } = require('@openzeppelin/test-helpers');
+const { expect } = require('chai');
+require('chai').should();
 
-const LongVault = artifacts.require('LongVault');
 
-contract('LongVault', function () {
+const LongVault = contract.fromArtifact('LongVault');
 
-  // Newly deployed LongVault contract for each test
+
+describe('LongVault', function () {
+  const [ admin, beneficiary ] = accounts;
+
   beforeEach(async function () {
-    const testBeneficiaryAddress = '0x509B0f4F7d834a65517ac4Fcc834c67e1e20b68F';
-    this.vault = await LongVault.new(testBeneficiaryAddress);
+    this.vault = await LongVault.new(beneficiary, { from: admin });
   });
+
+  /**
+   * Initial State
+  */
+
+  it('contract deployer address is set as admin', async function () {
+    expect(await this.vault.admin()).to.equal(admin);
+  });
+
+  it('beneficiary address is set', async function () {
+    expect(await this.vault.beneficiary()).to.equal(beneficiary);
+  });
+
+  // TODO: Write this test
+  // it('ADMIN_ROLE set to admin address', async function () {});
+
+  // TODO: Write this test
+  // it('BENEFICIARY_ROLE set to beneficiary address', async function () {});
 
 
   /**
@@ -19,7 +40,7 @@ contract('LongVault', function () {
   it('createEtherRelease emits an EtherReleaseCreated event', async function () {
     const testEtherAmount = new BN(1);
     const testReleaseTimestamp = new BN(1723326570); // 08-10-2024
-    const receipt = await this.vault.createEtherRelease(testEtherAmount, testReleaseTimestamp);
+    const receipt = await this.vault.createEtherRelease(testEtherAmount, testReleaseTimestamp, { from: admin });
 
     expectEvent(receipt, 'EtherReleaseCreated', {
       timestamp: testReleaseTimestamp,
@@ -41,15 +62,15 @@ contract('LongVault', function () {
   */
 
   it('createERC20Release emits an ERC20ReleaseCreated event', async function () {
-    const testLINKAddress = '0x514910771AF9Ca656af840dff83E8264EcF986CA';
-    const testLINKAmount = new BN(10);
-    const testLINKReleaseTimestamp = new BN(1723326570); // 08-10-2024
-    const receipt = await this.vault.createERC20Release(testLINKAddress, testLINKAmount, testLINKReleaseTimestamp);
+    const testAddress = '0x514910771AF9Ca656af840dff83E8264EcF986CA';
+    const testAmount = new BN(10);
+    const testReleaseTimestamp = new BN(1723326570); // 08-10-2024
+    const receipt = await this.vault.createERC20Release(testAddress, testAmount, testReleaseTimestamp, { from: admin });
 
     expectEvent(receipt, 'ERC20ReleaseCreated', { 
-      token: testLINKAddress,
-      timestamp: testLINKReleaseTimestamp,
-      amount: testLINKAmount
+      token: testAddress,
+      timestamp: testReleaseTimestamp,
+      amount: testAmount
     });
   });
 

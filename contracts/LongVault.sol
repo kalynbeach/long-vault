@@ -56,6 +56,7 @@ contract LongVault is AccessControl {
 
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     bytes32 public constant BENEFICIARY_ROLE = keccak256("BENEFICIARY_ROLE");
+    
     address public admin;
     address payable public beneficiary;
     
