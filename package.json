@@ -1,5 +1,5 @@
 {
-  "name": "longvault",
+  "name": "long-vault",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -7,8 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Kalyn Beach",
+  "license": "MIT",
   "devDependencies": {
     "@openzeppelin/contracts": "^4.2.0",
     "chai": "^4.3.4",
