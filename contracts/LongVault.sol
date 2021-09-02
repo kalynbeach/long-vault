@@ -25,11 +25,11 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 contract LongVault is AccessControl {
     using Address for address payable;
 
+    event EtherDeposited(uint amount, uint timestamp);
     event EtherReleaseCreated(uint amount, uint releaseTime);
-    event EtherDeposited(uint amount, uint releaseTime);
     event EtherReleased(uint amount, uint releaseTime);
+    event ERC20Deposited(address token, uint amount, uint timestamp);
     event ERC20ReleaseCreated(address token, uint amount, uint releaseTime);
-    event ERC20Deposited(address token, uint amount, uint releaseTime);
     event ERC20Released(address token, uint amount, uint releaseTime);
 
     struct EtherRelease {
@@ -82,19 +82,23 @@ contract LongVault is AccessControl {
      */
     receive() external payable {
         /// TODO: Implement as needed
-        emit EtherDeposited(block.timestamp, msg.value);
+        emit EtherDeposited(msg.value, block.timestamp);
     }
 
     /**
      * @dev Called when msg.data is not empty
      */
-    fallback() external payable {}
+    fallback() external payable {
+        emit EtherDeposited(msg.value, block.timestamp);
+    }
 
     /**
      * @dev Called when msg.data is not empty
      */
     function deposit() external payable onlyRole(ADMIN_ROLE) {
         /// uint amount = msg.value;
+        // (bool success,) = address(this).call{value: msg.value}("");
+        // require(success);
         emit EtherDeposited(msg.value, block.timestamp);
     }
 

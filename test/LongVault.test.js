@@ -1,5 +1,5 @@
 const { accounts, contract } = require('@openzeppelin/test-environment');
-const { BN, expectEvent } = require('@openzeppelin/test-helpers');
+const { BN, ether, expectEvent, expectRevert, send } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 require('chai').should();
 
@@ -27,22 +27,46 @@ describe('LongVault', function () {
   });
 
   // TODO: Write
+  //
+  // ADMIN_ROLE set
+  //
+
   // it('ADMIN_ROLE set to admin address', async function () {});
 
   // TODO: Write
+  //
+  // BENEFICIARY_ROLE set
+  //
+
   // it('BENEFICIARY_ROLE set to beneficiary address', async function () {});
 
   /**
-   * Deposits
+   * Ether Deposit & Balance
   */
 
+  // TODO: Figure out if I need this?
   // receive()
   // it('recieves ether deposits', async function () {});
 
+  //
   // deposit()
-  // it('recieves ether deposits', async function () {});
+  //
 
+  it('receives ether deposits', async function () {
+    const testEtherAmount = new BN(1);
+    const receipt = await this.vault.deposit({ from: admin, value: testEtherAmount });
+    expectEvent(receipt, 'EtherDeposited', { amount: testEtherAmount });    
+  });
+
+
+  /**
+   * ERC20 Deposit & Balances
+  */
+
+  //
   // depositERC20()
+  //
+
   // it('recieves ERC20 token deposits', async function () {});
 
 
@@ -58,9 +82,7 @@ describe('LongVault', function () {
     const testEtherAmount = new BN(1);
     const testReleaseTime = new BN(1723326570); // 08-10-2024
     const receipt = await this.vault.createEtherRelease(testEtherAmount, testReleaseTime, { from: admin });
-
     // TODO: Ether to wei conversion here?
-
     expectEvent(receipt, 'EtherReleaseCreated', {
       amount: testEtherAmount,
       releaseTime: testReleaseTime
@@ -76,9 +98,9 @@ describe('LongVault', function () {
   // });
 
 
-  /**
-   * createERC20Release()
-  */
+  //
+  // createERC20Release()
+  //
 
   it('createERC20Release emits an ERC20ReleaseCreated event', async function () {
     const testAddress = '0x514910771AF9Ca656af840dff83E8264EcF986CA';
