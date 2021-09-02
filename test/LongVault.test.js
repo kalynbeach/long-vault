@@ -26,29 +26,48 @@ describe('LongVault', function () {
     expect(await this.vault.beneficiary()).to.equal(beneficiary);
   });
 
-  // TODO: Write this test
+  // TODO: Write
   // it('ADMIN_ROLE set to admin address', async function () {});
 
-  // TODO: Write this test
+  // TODO: Write
   // it('BENEFICIARY_ROLE set to beneficiary address', async function () {});
+
+  /**
+   * Deposits
+  */
+
+  // receive()
+  // it('recieves ether deposits', async function () {});
+
+  // deposit()
+  // it('recieves ether deposits', async function () {});
+
+  // depositERC20()
+  // it('recieves ERC20 token deposits', async function () {});
 
 
   /**
-   * createEtherRelease()
+   * Release Creation 
   */
+  
+  //
+  // createEtherRelease()
+  //
 
   it('createEtherRelease emits an EtherReleaseCreated event', async function () {
     const testEtherAmount = new BN(1);
-    const testReleaseTimestamp = new BN(1723326570); // 08-10-2024
-    const receipt = await this.vault.createEtherRelease(testEtherAmount, testReleaseTimestamp, { from: admin });
+    const testReleaseTime = new BN(1723326570); // 08-10-2024
+    const receipt = await this.vault.createEtherRelease(testEtherAmount, testReleaseTime, { from: admin });
+
+    // TODO: Ether to wei conversion here?
 
     expectEvent(receipt, 'EtherReleaseCreated', {
-      timestamp: testReleaseTimestamp,
-      amount: testEtherAmount
+      amount: testEtherAmount,
+      releaseTime: testReleaseTime
     });
   });
 
-  // TODO: Finish writing this test
+  // TODO: Finish writing
   // it('createEtherRelease adds newly created EtherReleases to etherReleases array', async function () {
   //   const etherReleases = await this.vault.etherReleases();
   //   const prevEtherReleaseCount = etherReleases.length;
@@ -64,17 +83,21 @@ describe('LongVault', function () {
   it('createERC20Release emits an ERC20ReleaseCreated event', async function () {
     const testAddress = '0x514910771AF9Ca656af840dff83E8264EcF986CA';
     const testAmount = new BN(10);
-    const testReleaseTimestamp = new BN(1723326570); // 08-10-2024
-    const receipt = await this.vault.createERC20Release(testAddress, testAmount, testReleaseTimestamp, { from: admin });
+    const testReleaseTime = new BN(1723326570); // 08-10-2024
+    const receipt = await this.vault.createERC20Release(testAddress, testAmount, testReleaseTime, { from: admin });
 
     expectEvent(receipt, 'ERC20ReleaseCreated', { 
       token: testAddress,
-      timestamp: testReleaseTimestamp,
-      amount: testAmount
+      amount: testAmount,
+      releaseTime: testReleaseTime
     });
   });
 
-  // TODO: Write this test
+  // TODO: Write
   // it('createERC20Release adds newly created ERC20Releases to erc20Releases array', async function () {});
+
+  /**
+   * Releases
+  */
 
 });

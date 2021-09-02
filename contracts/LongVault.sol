@@ -25,17 +25,17 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 contract LongVault is AccessControl {
     using Address for address payable;
 
-    event EtherReleaseCreated(uint timestamp, uint amount);
-    event EtherDeposited(uint timestamp, uint amount);
-    event EtherReleased(uint timestamp, uint amount);
-    event ERC20ReleaseCreated(address token, uint timestamp, uint amount);
-    event ERC20Deposited(address token, uint timestamp, uint amount);
-    event ERC20Released(address token, uint timestamp, uint amount);
+    event EtherReleaseCreated(uint amount, uint releaseTime);
+    event EtherDeposited(uint amount, uint releaseTime);
+    event EtherReleased(uint amount, uint releaseTime);
+    event ERC20ReleaseCreated(address token, uint amount, uint releaseTime);
+    event ERC20Deposited(address token, uint amount, uint releaseTime);
+    event ERC20Released(address token, uint amount, uint releaseTime);
 
     struct EtherRelease {
         uint id;
         uint amount;
-        uint timestamp;
+        uint releaseTime;
         bool released;
         bool repeatedAnnually;
     }
@@ -44,7 +44,7 @@ contract LongVault is AccessControl {
         uint id;
         address token;
         uint amount;
-        uint timestamp;
+        uint releaseTime;
         bool released;
         bool repeatedAnnually;
     }
@@ -56,7 +56,7 @@ contract LongVault is AccessControl {
 
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     bytes32 public constant BENEFICIARY_ROLE = keccak256("BENEFICIARY_ROLE");
-    
+
     address public admin;
     address payable public beneficiary;
     
@@ -82,21 +82,20 @@ contract LongVault is AccessControl {
      */
     receive() external payable {
         /// TODO: Implement as needed
-    }
-
-    /**
-     * @dev Called when msg.data is not empty
-     */
-    fallback() external payable {
-
-    }
-
-    /**
-     * @dev Called when msg.data is not empty
-     */
-    function deposit() public payable virtual onlyRole(ADMIN_ROLE) {
-        /// uint amount = msg.value;
         emit EtherDeposited(block.timestamp, msg.value);
+    }
+
+    /**
+     * @dev Called when msg.data is not empty
+     */
+    fallback() external payable {}
+
+    /**
+     * @dev Called when msg.data is not empty
+     */
+    function deposit() external payable onlyRole(ADMIN_ROLE) {
+        /// uint amount = msg.value;
+        emit EtherDeposited(msg.value, block.timestamp);
     }
 
     /**
@@ -107,11 +106,60 @@ contract LongVault is AccessControl {
     function depositERC20(
         address token_,
         uint amount_
-    ) public payable onlyRole(ADMIN_ROLE) {
+    ) external payable onlyRole(ADMIN_ROLE) {
         erc20Tokens[token_] += amount_;
         lastDepositAmount = amount_;
         lastDepositDate = block.timestamp;
-        emit ERC20Deposited(token_, block.timestamp, amount_);
+        emit ERC20Deposited(token_, amount_, block.timestamp);
+    }
+
+    /**
+     * @dev Create and add a new ether Release.
+     * @param amount_ The amount of Ether to be released.
+     * @param releaseTime_ The future unix timestamp of when the release will occur.
+     */
+    /// TODO: Add and build support for repeatedAnnually bool param
+    function createEtherRelease(
+        uint amount_,
+        uint releaseTime_
+    ) public onlyRole(ADMIN_ROLE) {
+        require(releaseTime_ > block.timestamp, "LongVault: release time is before current time");
+        etherReleases.push(EtherRelease({
+            id: etherReleaseCount,
+            amount: amount_,
+            releaseTime: releaseTime_,
+            released: false,
+            repeatedAnnually: false
+        }));
+        emit EtherReleaseCreated(amount_, releaseTime_);
+        etherReleaseCount++;
+        totalReleaseCount++;
+    }
+
+    /**
+     * @dev Create and add a new ERC20 token Release
+     * @param token_ The address of the ERC20 token to release.
+     * @param amount_ The amount of the ERC20 token to be released.
+     * @param releaseTime_ The future unix timestamp of when the release will occur.
+     */
+    /// TODO: Add and build support for repeatedAnnually bool param
+    function createERC20Release(
+        address token_,
+        uint amount_,
+        uint releaseTime_
+    ) public onlyRole(ADMIN_ROLE) {
+        require(releaseTime_ > block.timestamp, "LongVault: release time is before current time");
+        erc20Releases.push(ERC20Release({
+            id: erc20ReleaseCount,
+            token: token_,
+            amount: amount_,
+            releaseTime: releaseTime_,
+            released: false,
+            repeatedAnnually: false
+        }));
+        emit ERC20ReleaseCreated(token_, amount_, releaseTime_);
+        erc20ReleaseCount++;
+        totalReleaseCount++;
     }
 
     /**
@@ -121,7 +169,7 @@ contract LongVault is AccessControl {
     function releaseEther(EtherRelease memory release_) public onlyRole(ADMIN_ROLE) {
         uint amount = release_.amount;
         beneficiary.sendValue(amount);
-        emit EtherReleased(block.timestamp, amount);
+        emit EtherReleased(amount, block.timestamp);
     }
 
     /**
@@ -132,54 +180,7 @@ contract LongVault is AccessControl {
         address token = release_.token;
         uint amount = release_.amount;
         /// TODO: Send tokens to beneficiary wallet
-        emit ERC20Released(token, block.timestamp, amount);
-    }
-
-    /**
-     * @dev Create and add a new ether Release.
-     * @param amount_ The amount of Ether to be released.
-     * @param releaseTimestamp_ The future unix timestamp of when the release will occur.
-     */
-    /// TODO: Add and build support for repeatedAnnually bool param
-    function createEtherRelease(
-        uint amount_,
-        uint releaseTimestamp_
-    ) public onlyRole(ADMIN_ROLE) {
-        etherReleases.push(EtherRelease({
-            id: etherReleaseCount,
-            amount: amount_,
-            timestamp: releaseTimestamp_,
-            released: false,
-            repeatedAnnually: false
-        }));
-        emit EtherReleaseCreated(releaseTimestamp_, amount_);
-        etherReleaseCount++;
-        totalReleaseCount++;
-    }
-
-    /**
-     * @dev Create and add a new ERC20 token Release
-     * @param token_ The address of the ERC20 token to release.
-     * @param amount_ The amount of the ERC20 token to be released.
-     * @param releaseTimestamp_ The future unix timestamp of when the release will occur.
-     */
-    /// TODO: Add and build support for repeatedAnnually bool param
-    function createERC20Release(
-        address token_,
-        uint amount_,
-        uint releaseTimestamp_
-    ) public onlyRole(ADMIN_ROLE) {
-        erc20Releases.push(ERC20Release({
-            id: erc20ReleaseCount,
-            token: token_,
-            amount: amount_,
-            timestamp: releaseTimestamp_,
-            released: false,
-            repeatedAnnually: false
-        }));
-        emit ERC20ReleaseCreated(token_, releaseTimestamp_, amount_);
-        erc20ReleaseCount++;
-        totalReleaseCount++;
+        emit ERC20Released(token, amount, block.timestamp);
     }
 
     /**
