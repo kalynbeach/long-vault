@@ -12,6 +12,9 @@ describe('LongVault', function () {
 
   beforeEach(async function () {
     this.vault = await LongVault.new(beneficiary, { from: admin });
+    this.this.testReleaseTime = new BN(1723326570); // 08-10-2024
+    this.testEtherAmount = new BN(1);
+    this.testERC20Amount = new BN(10);
   });
 
   /**
@@ -53,9 +56,8 @@ describe('LongVault', function () {
   //
 
   it('receives ether deposits', async function () {
-    const testEtherAmount = new BN(1);
     const receipt = await this.vault.deposit({ from: admin, value: testEtherAmount });
-    expectEvent(receipt, 'EtherDeposited', { amount: testEtherAmount });    
+    expectEvent(receipt, 'EtherDeposited', { amount: this.testEtherAmount });    
   });
 
 
@@ -79,13 +81,11 @@ describe('LongVault', function () {
   //
 
   it('createEtherRelease emits an EtherReleaseCreated event', async function () {
-    const testEtherAmount = new BN(1);
-    const testReleaseTime = new BN(1723326570); // 08-10-2024
-    const receipt = await this.vault.createEtherRelease(testEtherAmount, testReleaseTime, { from: admin });
+    const receipt = await this.vault.createEtherRelease(this.testEtherAmount, this.testReleaseTime, { from: admin });
     // TODO: Ether to wei conversion here?
     expectEvent(receipt, 'EtherReleaseCreated', {
-      amount: testEtherAmount,
-      releaseTime: testReleaseTime
+      amount: this.testEtherAmount,
+      releaseTime: this.testReleaseTime
     });
   });
 
@@ -105,13 +105,12 @@ describe('LongVault', function () {
   it('createERC20Release emits an ERC20ReleaseCreated event', async function () {
     const testAddress = '0x514910771AF9Ca656af840dff83E8264EcF986CA';
     const testAmount = new BN(10);
-    const testReleaseTime = new BN(1723326570); // 08-10-2024
-    const receipt = await this.vault.createERC20Release(testAddress, testAmount, testReleaseTime, { from: admin });
+    const receipt = await this.vault.createERC20Release(testAddress, testAmount, this.testReleaseTime, { from: admin });
 
     expectEvent(receipt, 'ERC20ReleaseCreated', { 
       token: testAddress,
       amount: testAmount,
-      releaseTime: testReleaseTime
+      releaseTime: this.testReleaseTime
     });
   });
 

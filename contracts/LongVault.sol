@@ -3,7 +3,7 @@ pragma solidity ^0.8.6;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 
 // > LongVault creation
@@ -28,10 +28,11 @@ contract LongVault is AccessControl {
     event EtherDeposited(uint amount, uint timestamp);
     event EtherReleaseCreated(uint amount, uint releaseTime);
     event EtherReleased(uint amount, uint releaseTime);
-    event ERC20Deposited(address token, uint amount, uint timestamp);
-    event ERC20ReleaseCreated(address token, uint amount, uint releaseTime);
-    event ERC20Released(address token, uint amount, uint releaseTime);
+    event ERC20Deposited(IERC20 token, uint amount, uint timestamp);
+    event ERC20ReleaseCreated(IERC20 token, uint amount, uint releaseTime);
+    event ERC20Released(IERC20 token, uint amount, uint releaseTime);
 
+    // TODO: Add & support uint createdTime
     struct EtherRelease {
         uint id;
         uint amount;
@@ -40,9 +41,10 @@ contract LongVault is AccessControl {
         bool repeatedAnnually;
     }
 
+    // TODO: Add & support uint createdTime
     struct ERC20Release {
         uint id;
-        address token;
+        IERC20 token;
         uint amount;
         uint releaseTime;
         bool released;
@@ -52,7 +54,7 @@ contract LongVault is AccessControl {
     EtherRelease[] public etherReleases;
     ERC20Release[] public erc20Releases;
 
-    mapping(address => uint) public erc20Tokens;
+    mapping(IERC20 => uint) public tokens;
 
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     bytes32 public constant BENEFICIARY_ROLE = keccak256("BENEFICIARY_ROLE");
@@ -108,10 +110,10 @@ contract LongVault is AccessControl {
      * @param amount_ The amount of the ERC20 token to be deposited.
      */
     function depositERC20(
-        address token_,
+        IERC20 token_,
         uint amount_
     ) external payable onlyRole(ADMIN_ROLE) {
-        erc20Tokens[token_] += amount_;
+        tokens[token_] += amount_;
         lastDepositAmount = amount_;
         lastDepositDate = block.timestamp;
         emit ERC20Deposited(token_, amount_, block.timestamp);
@@ -148,7 +150,7 @@ contract LongVault is AccessControl {
      */
     /// TODO: Add and build support for repeatedAnnually bool param
     function createERC20Release(
-        address token_,
+        IERC20 token_,
         uint amount_,
         uint releaseTime_
     ) public onlyRole(ADMIN_ROLE) {
@@ -181,7 +183,7 @@ contract LongVault is AccessControl {
      * @param release_ The ERC20Release object to use as the release.
      */
     function releaseERC20(ERC20Release memory release_) public onlyRole(ADMIN_ROLE) {
-        address token = release_.token;
+        IERC20 token = release_.token;
         uint amount = release_.amount;
         /// TODO: Send tokens to beneficiary wallet
         emit ERC20Released(token, amount, block.timestamp);
@@ -198,8 +200,8 @@ contract LongVault is AccessControl {
      * @dev Get ERC20 token balances
      * @param token_ The address of the ERC20 token to get the balance of.
      */
-    function getERC20Balance(address token_) public view returns (uint) {
-        return erc20Tokens[token_];
+    function getERC20Balance(IERC20 token_) public view returns (uint) {
+        return tokens[token_];
     }
 
     /**
