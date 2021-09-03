@@ -1,5 +1,5 @@
 const { accounts, contract } = require('@openzeppelin/test-environment');
-const { BN, ether, expectEvent, expectRevert, send } = require('@openzeppelin/test-helpers');
+const { balance, BN, ether, expectEvent, expectRevert, send } = require('@openzeppelin/test-helpers');
 const { expect } = require('chai');
 require('chai').should();
 
@@ -12,9 +12,10 @@ describe('LongVault', function () {
 
   beforeEach(async function () {
     this.vault = await LongVault.new(beneficiary, { from: admin });
-    this.this.testReleaseTime = new BN(1723326570); // 08-10-2024
+    this.testReleaseTime = new BN(1723326570); // 08-10-2024
     this.testEtherAmount = new BN(1);
     this.testERC20Amount = new BN(10);
+    this.testERC20Token = '0x514910771AF9Ca656af840dff83E8264EcF986CA'; // LINK
   });
 
   /**
@@ -56,7 +57,7 @@ describe('LongVault', function () {
   //
 
   it('receives ether deposits', async function () {
-    const receipt = await this.vault.deposit({ from: admin, value: testEtherAmount });
+    const receipt = await this.vault.deposit({ from: admin, value: this.testEtherAmount });
     expectEvent(receipt, 'EtherDeposited', { amount: this.testEtherAmount });    
   });
 
@@ -69,8 +70,24 @@ describe('LongVault', function () {
   // depositERC20()
   //
 
-  // it('recieves ERC20 token deposits', async function () {});
+  it('receives ERC20 token deposits', async function () {
+    const prevBalance = await this.vault.getERC20Balance(this.testERC20Token);
+    const receipt = await this.vault.depositERC20(this.testERC20Token, this.testERC20Amount, { from: admin });
+    const newBalance = await this.vault.getERC20Balance(this.testERC20Token);
+    const balanceDiff = newBalance.sub(prevBalance);
+    expect(balanceDiff.eq(this.testERC20Amount));
+    expectEvent(receipt, 'ERC20Deposited', {
+      token: this.testERC20Token,
+      amount: this.testERC20Amount
+    });
+  });
 
+  //
+  // Ether Balance
+  //
+  it('returns the current ether balance', async function () {
+    expect(await balance.current(this.vault.address, 'ether'));
+  });
 
   /**
    * Release Creation 
