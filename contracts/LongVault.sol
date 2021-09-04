@@ -170,23 +170,30 @@ contract LongVault is AccessControl {
 
     /**
      * @dev Release ether to beneficiary.
-     * @param release_ The EtherRelease object to use as the release.
+     * @param amount_ The amount of ether to release.
      */
-    function releaseEther(EtherRelease memory release_) public onlyRole(ADMIN_ROLE) {
-        uint amount = release_.amount;
-        beneficiary.sendValue(amount);
-        emit EtherReleased(amount, block.timestamp);
+    function releaseEther(uint amount_) public onlyRole(ADMIN_ROLE) {
+        require(
+            address(this).balance >= amount_,
+            "LongVault: ether release amount is greater than ether balance"
+        );
+        /// TODO: Make sure wei/ether conversion is correct here
+        beneficiary.sendValue(amount_);
+        emit EtherReleased(amount_, block.timestamp);
     }
 
     /**
      * @dev Release ERC20 tokens to beneficiary.
-     * @param release_ The ERC20Release object to use as the release.
+     * @param token_ The ERC20 token to release.
+     * @param amount_ The amount of the token to release.
      */
-    function releaseERC20(ERC20Release memory release_) public onlyRole(ADMIN_ROLE) {
-        IERC20 token = release_.token;
-        uint amount = release_.amount;
-        /// TODO: Send tokens to beneficiary wallet
-        emit ERC20Released(token, amount, block.timestamp);
+    function releaseERC20(IERC20 token_, uint amount_) public onlyRole(ADMIN_ROLE) {
+        require(
+            tokens[token_] >= amount_,
+            "LongVault: token release amount is greater than token balance"
+        );
+        token_.transfer(beneficiary, amount_);
+        emit ERC20Released(token_, amount_, block.timestamp);
     }
 
     /**
