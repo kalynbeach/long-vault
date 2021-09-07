@@ -4,18 +4,18 @@ const { expect } = require('chai');
 require('chai').should();
 
 
-const LongVault = contract.fromArtifact('LongVault');
+const VAULT_RELEASE_TIME = new BN(1723326570); // 08-10-2024
+const ETHER_VAULT_AMOUNT = ether('10');
+const ERC20_VAULT_AMOUNT = new BN(10);
+const ERC20_VAULT_TOKEN = '0x514910771AF9Ca656af840dff83E8264EcF986CA'; // LINK
 
+const LongVault = contract.fromArtifact('LongVault');
 
 describe('LongVault', function () {
   const [ admin, beneficiary ] = accounts;
 
   beforeEach(async function () {
     this.vault = await LongVault.new(beneficiary, { from: admin });
-    this.testReleaseTime = new BN(1723326570); // 08-10-2024
-    this.testEtherVaultAmount = ether("10");
-    this.testERC20VaultAmount = new BN(100);
-    this.testERC20Token = '0x514910771AF9Ca656af840dff83E8264EcF986CA'; // LINK
   });
 
   /**
@@ -34,14 +34,12 @@ describe('LongVault', function () {
   //
   // ADMIN_ROLE set
   //
-
   // it('ADMIN_ROLE set to admin address', async function () {});
 
   // TODO: Write
   //
   // BENEFICIARY_ROLE set
   //
-
   // it('BENEFICIARY_ROLE set to beneficiary address', async function () {});
 
   /**
@@ -52,8 +50,8 @@ describe('LongVault', function () {
   // deposit()
   //
   it('receives ether deposits', async function () {
-    const receipt = await this.vault.deposit({ from: admin, value: this.testEtherVaultAmount });
-    expectEvent(receipt, 'EtherDeposited', { amount: this.testEtherVaultAmount });    
+    const receipt = await this.vault.deposit({ from: admin, value: ETHER_VAULT_AMOUNT });
+    expectEvent(receipt, 'EtherDeposited', { amount: ETHER_VAULT_AMOUNT });    
   });
 
   //
@@ -72,73 +70,85 @@ describe('LongVault', function () {
   // depositERC20()
   //
   it('receives ERC20 token deposits', async function () {
-    const prevBalance = await this.vault.getERC20Balance(this.testERC20Token);
-    const receipt = await this.vault.depositERC20(this.testERC20Token, this.testERC20VaultAmount, { from: admin });
-    const newBalance = await this.vault.getERC20Balance(this.testERC20Token);
+    const prevBalance = await this.vault.getERC20Balance(ERC20_VAULT_TOKEN);
+    const receipt = await this.vault.depositERC20(ERC20_VAULT_TOKEN, ERC20_VAULT_AMOUNT, { from: admin });
+    const newBalance = await this.vault.getERC20Balance(ERC20_VAULT_TOKEN);
     const balanceDiff = newBalance.sub(prevBalance);
-    expect(balanceDiff.eq(this.testERC20VaultAmount));
+    expect(balanceDiff.eq(ERC20_VAULT_AMOUNT));
     expectEvent(receipt, 'ERC20Deposited', {
-      token: this.testERC20Token,
-      amount: this.testERC20VaultAmount
+      token: ERC20_VAULT_TOKEN,
+      amount: ERC20_VAULT_AMOUNT
     });
   });
 
   //
-  // ERC20 Token Balances
+  // ERC20 Balances
   //
   it('returns the current balance of a specific ERC20 token', async function () {
-    const testERC20Balance = await this.vault.getERC20Balance(this.testERC20Token);
-    expect(testERC20Balance.eq(this.testERC20VaultAmount));
+    const testERC20Balance = await this.vault.getERC20Balance(ERC20_VAULT_TOKEN);
+    expect(testERC20Balance.eq(ERC20_VAULT_AMOUNT));
   });
 
   /**
-   * Release Creation 
+   * Ether & ERC20 Release Creation 
   */
   
   //
   // createEtherRelease()
   //
+
   it('createEtherRelease emits an EtherReleaseCreated event', async function () {
     const receipt = await this.vault.createEtherRelease(
-      this.testEtherVaultAmount, 
-      this.testReleaseTime,
+      ETHER_VAULT_AMOUNT, 
+      VAULT_RELEASE_TIME,
       { from: admin }
     );
     // TODO: Ether to wei conversion here?
     expectEvent(receipt, 'EtherReleaseCreated', {
-      amount: this.testEtherVaultAmount,
-      releaseTime: this.testReleaseTime
+      amount: ETHER_VAULT_AMOUNT,
+      releaseTime: VAULT_RELEASE_TIME
     });
   });
 
-  // TODO: Finish writing
-  // it('createEtherRelease adds newly created EtherReleases to etherReleases array', async function () {
-  //   const etherReleases = await this.vault.etherReleases();
-  //   const prevEtherReleaseCount = etherReleases.length;
-  //   // Expect new EtherRelease is added to etherReleases array
-  //   expect();
-  // });
+  it('createEtherRelease adds newly created EtherReleases to etherReleases array', async function () {
+    await this.vault.createEtherRelease(
+      ETHER_VAULT_AMOUNT, 
+      VAULT_RELEASE_TIME,
+      { from: admin }
+    );
+    const etherReleases = await this.vault.getEtherReleases();
+    expect(etherReleases.length).to.equal(1);
+  });
 
 
   //
   // createERC20Release()
   //
+
   it('createERC20Release emits an ERC20ReleaseCreated event', async function () {
     const receipt = await this.vault.createERC20Release(
-      this.testERC20Token,
-      this.testERC20VaultAmount,
-      this.testReleaseTime,
+      ERC20_VAULT_TOKEN,
+      ERC20_VAULT_AMOUNT,
+      VAULT_RELEASE_TIME,
       { from: admin }
     );
     expectEvent(receipt, 'ERC20ReleaseCreated', { 
-      token: this.testERC20Token,
-      amount: this.testERC20VaultAmount,
-      releaseTime: this.testReleaseTime
+      token: ERC20_VAULT_TOKEN,
+      amount: ERC20_VAULT_AMOUNT,
+      releaseTime: VAULT_RELEASE_TIME
     });
   });
 
-  // TODO: Write
-  // it('createERC20Release adds newly created ERC20Releases to erc20Releases array', async function () {});
+  it('createERC20Release adds newly created ERC20Releases to erc20Releases array', async function () {
+    await this.vault.createERC20Release(
+      ERC20_VAULT_TOKEN,
+      ERC20_VAULT_AMOUNT,
+      VAULT_RELEASE_TIME,
+      { from: admin }
+    );
+    const erc20Releases = await this.vault.getERC20Releases();
+    expect(erc20Releases.length).to.equal(1);
+  });
 
   /**
    * Ether & Token Releases
@@ -148,7 +158,7 @@ describe('LongVault', function () {
   // releaseEther()
   //
   it('releaseEther sends ether to beneficiary using EtherRelease object', async function () {
-    await this.vault.deposit({ from: admin, value: this.testEtherVaultAmount });
+    await this.vault.deposit({ from: admin, value: ETHER_VAULT_AMOUNT });
     const testEtherReleaseAmount = ether("2");
     const receipt = await this.vault.releaseEther(testEtherReleaseAmount, { from: admin });
     expectEvent(receipt, 'EtherReleased', {
