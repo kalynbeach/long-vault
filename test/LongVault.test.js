@@ -6,7 +6,9 @@ require('chai').should();
 
 const VAULT_RELEASE_TIME = new BN(1723326570); // 08-10-2024
 const ETHER_VAULT_AMOUNT = ether('10');
+const ETHER_RELEASE_AMOUNT = ether('2');
 const ERC20_VAULT_AMOUNT = new BN(10);
+const ERC20_RELEASE_AMOUNT = new BN(3);
 const ERC20_VAULT_TOKEN = '0x514910771AF9Ca656af840dff83E8264EcF986CA'; // LINK
 
 const LongVault = contract.fromArtifact('LongVault');
@@ -70,10 +72,10 @@ describe('LongVault', function () {
   // depositERC20()
   //
   it('receives ERC20 token deposits', async function () {
-    const prevBalance = await this.vault.getERC20Balance(ERC20_VAULT_TOKEN);
+    const preBalance = await this.vault.getERC20Balance(ERC20_VAULT_TOKEN);
     const receipt = await this.vault.depositERC20(ERC20_VAULT_TOKEN, ERC20_VAULT_AMOUNT, { from: admin });
     const newBalance = await this.vault.getERC20Balance(ERC20_VAULT_TOKEN);
-    const balanceDiff = newBalance.sub(prevBalance);
+    const balanceDiff = newBalance.sub(preBalance);
     expect(balanceDiff.eq(ERC20_VAULT_AMOUNT));
     expectEvent(receipt, 'ERC20Deposited', {
       token: ERC20_VAULT_TOKEN,
@@ -157,18 +159,26 @@ describe('LongVault', function () {
   //
   // releaseEther()
   //
-  it('releaseEther sends ether to beneficiary using EtherRelease object', async function () {
+  it('releaseEther sends ether to beneficiary', async function () {
     await this.vault.deposit({ from: admin, value: ETHER_VAULT_AMOUNT });
-    const testEtherReleaseAmount = ether("2");
-    const receipt = await this.vault.releaseEther(testEtherReleaseAmount, { from: admin });
+    const receipt = await this.vault.releaseEther(ETHER_RELEASE_AMOUNT, { from: admin });
     expectEvent(receipt, 'EtherReleased', {
-      amount: testEtherReleaseAmount,
+      amount: ETHER_RELEASE_AMOUNT,
     });
   });
 
-  // TODO: Write  
+  // TODO: Look into how to handle testing existing ERC20 token contracts (like LINK) locally
+  //    -- Import locally? Need to use testnet where the contract exists? 
   //
   // releaseERC20()
   //
-  // it('releaseEther sends ether to beneficiary using EtherRelease object', async function () {}
+  // it('releaseERC20 sends tokens to beneficiary', async function () {
+  //   await this.vault.depositERC20(ERC20_VAULT_TOKEN, ERC20_VAULT_AMOUNT, { from: admin });
+  //   const preBalance = await this.vault.getERC20Balance(ERC20_VAULT_TOKEN);
+  //   console.log(`preBalance: ${preBalance}`);
+  //   const receipt = await this.vault.releaseERC20(ERC20_VAULT_TOKEN, ERC20_RELEASE_AMOUNT, { from: admin });
+  //   console.log(`receipt: ${receipt}`);
+  //   const postBalance = await this.vault.getERC20Balance(ERC20_VAULT_TOKEN);
+  //   console.log(`postBalance: ${postBalance}`);
+  // });
 });
