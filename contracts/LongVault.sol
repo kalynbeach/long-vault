@@ -7,7 +7,8 @@ import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import "./LongVaultTokens.sol";
+// import "./LongVaultTokens.sol";
+// import "./LongVaultTestToken.sol";
 
 // > LongVault creation
 // - TODO: Read up on factory pattern, implement it as needed
@@ -51,7 +52,7 @@ contract LongVault is AccessControl, ERC1155Holder {
         bool repeatedAnnually;
     }
 
-    LongVaultTokens public tokens;
+    // LongVaultTokens public tokens;
     mapping(address => uint) public tokenIds;
     /// uint private tokenIdCount = 0;
 
@@ -77,7 +78,7 @@ contract LongVault is AccessControl, ERC1155Holder {
         _setupRole(BENEFICIARY_ROLE, beneficiary_);
         admin = msg.sender;
         beneficiary = beneficiary_;
-        tokens = new LongVaultTokens(beneficiary_);
+        /// tokens = new LongVaultTokens(beneficiary_);
         createdAt = block.timestamp;
     }
 
@@ -142,8 +143,14 @@ contract LongVault is AccessControl, ERC1155Holder {
     function depositToken(
         address token_,
         uint amount_
-    ) external payable onlyRole(DEFAULT_ADMIN_ROLE) {        
-        tokens.deposit(tokenId(token_), amount_);
+    ) external payable onlyRole(DEFAULT_ADMIN_ROLE) {
+        IERC20 _token = token(token_);
+        _token.safeIncreaseAllowance(admin, amount_);
+        _token.safeTransferFrom(admin, address(this), amount_);        
+        require(
+            _token.balanceOf(address(this)) >= amount_,
+            "LongVault: tokens must be deposited into the vault"
+        );
         emit TokenDeposited(token_, amount_, block.timestamp);
     }
 
@@ -216,20 +223,16 @@ contract LongVault is AccessControl, ERC1155Holder {
      * @param amount_ The amount of the token to release.
      */
     function releaseToken(address token_, uint amount_) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        uint tokenBalance = tokens.balanceOf(address(tokens), tokenId(token_));
+        IERC20 _token = token(token_);
+        uint tokenBalance = _token.balanceOf(address(this));
+        /// TODO: Check for calling address approval
         require(
             tokenBalance >= amount_,
             "LongVault: token release amount is greater than token balance"
         );
-        /// token(token_).safeTransferFrom(address(this), beneficiary, amount_);
-        tokens.safeTransferFrom(
-            address(tokens),
-            beneficiary,
-            tokenId(token_),
-            amount_,
-            msg.data
-        );
-        // tokens[token_] -= amount_;
+        _token.safeIncreaseAllowance(address(this), amount_);
+        _token.safeTransferFrom(address(this), beneficiary, amount_);
+        /// tokens[token_] -= amount_;
         emit TokenReleased(token_, amount_, block.timestamp);
     }
 
@@ -245,7 +248,8 @@ contract LongVault is AccessControl, ERC1155Holder {
      * @param token_ The address of the token to get the balance of.
      */
     function getTokenBalance(address token_) public view returns (uint) {
-        return tokens.balanceOf(address(tokens), tokenId(token_));
+        return token(token_).balanceOf(address(this));
+        // return tokens.balanceOf(address(tokens), tokenId(token_));
     }
 
     /**

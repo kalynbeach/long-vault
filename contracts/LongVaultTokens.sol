@@ -16,6 +16,7 @@ contract LongVaultTokens is ERC1155, AccessControl {
     address public admin;
     address payable public beneficiary;
 
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant BENEFICIARY_ROLE = keccak256("BENEFICIARY_ROLE");
 
     uint public lastDepositTokenId;
@@ -24,9 +25,25 @@ contract LongVaultTokens is ERC1155, AccessControl {
 
     constructor(address payable beneficiary_) ERC1155("") {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _setupRole(MINTER_ROLE, msg.sender);
         _setupRole(BENEFICIARY_ROLE, beneficiary_);
         admin = msg.sender;
         beneficiary = beneficiary_;
+    }
+
+    /**
+     * @dev Mint a LongVaultTokens token.
+     * @param account_ The account that the token will be assigned to.
+     * @param tokenId_ The id of the token type to mint.
+     * @param amount_ The amount of the token to be deposited.
+     */
+    function mint(
+        address account_,
+        uint tokenId_,
+        uint amount_,
+        bytes memory data_
+    ) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        _mint(account_, tokenId_, amount_, data_);
     }
 
     /**
