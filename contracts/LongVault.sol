@@ -3,9 +3,11 @@ pragma solidity ^0.8.6;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
-// import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
+import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
+import "./LongVaultTokens.sol";
 
 // > LongVault creation
 // - TODO: Read up on factory pattern, implement it as needed
@@ -18,23 +20,19 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 // - TODO: Create release() calling mechanism
 // -- Needs to check current datetime against Release struct/object timestamps
 
-// > Web3.js
-// - TODO: Start writing tests
-// - TODO: Learn how Web3.js interface is involved in contract creation
 
-
-contract LongVault is AccessControl {
+contract LongVault is AccessControl, ERC1155Holder {
     using Address for address payable;
     using SafeERC20 for IERC20;
 
     event EtherDeposited(uint amount, uint timestamp);
     event EtherReleaseCreated(uint amount, uint releaseTime);
     event EtherReleased(uint amount, uint releaseTime);
-    event ERC20Deposited(address token, uint amount, uint timestamp);
-    event ERC20ReleaseCreated(address token, uint amount, uint releaseTime);
-    event ERC20Released(address token, uint amount, uint releaseTime);
+    event TokenDeposited(address token, uint amount, uint timestamp);
+    event TokenReleaseCreated(address token, uint amount, uint releaseTime);
+    event TokenReleased(address token, uint amount, uint releaseTime);
 
-    // TODO: Add & support uint createdTime
+    /// TODO: Add & support uint createdTime
     struct EtherRelease {
         uint id;
         uint amount;
@@ -43,8 +41,8 @@ contract LongVault is AccessControl {
         bool repeatedAnnually;
     }
 
-    // TODO: Add & support uint createdTime
-    struct ERC20Release {
+    /// TODO: Add & support uint createdTime
+    struct TokenRelease {
         uint id;
         address token;
         uint amount;
@@ -53,12 +51,13 @@ contract LongVault is AccessControl {
         bool repeatedAnnually;
     }
 
-    mapping(address => uint) public tokens;
+    LongVaultTokens public tokens;
+    mapping(address => uint) public tokenIds;
+    /// uint private tokenIdCount = 0;
 
     EtherRelease[] public etherReleases;
-    ERC20Release[] public erc20Releases;
+    TokenRelease[] public tokenReleases;
 
-    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
     bytes32 public constant BENEFICIARY_ROLE = keccak256("BENEFICIARY_ROLE");
 
     address public admin;
@@ -68,17 +67,38 @@ contract LongVault is AccessControl {
     uint public totalReleaseCount;
     uint public nextRelease;
     uint public etherReleaseCount;
-    uint public erc20ReleaseCount;
+    uint public tokenReleaseCount;
     uint public lastDepositDate;
-    uint public lastDepositToken;
     uint public lastDepositAmount;
+    address public lastDepositToken;
     
     constructor(address payable beneficiary_) {
-        _setupRole(ADMIN_ROLE, msg.sender);
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _setupRole(BENEFICIARY_ROLE, beneficiary_);
         admin = msg.sender;
         beneficiary = beneficiary_;
+        tokens = new LongVaultTokens(beneficiary_);
         createdAt = block.timestamp;
+    }
+
+    /**
+     * @dev Needed for ERC1155Holder
+     */
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override(AccessControl, ERC1155Receiver)
+        returns (bool) {
+        return interfaceId == type(IERC1155).interfaceId || super.supportsInterface(interfaceId);
+    }
+
+    /**
+     * @param token_ The address of the token contract.
+     * @return the internal ERC1155 token id.
+     */
+    function tokenId(address token_) private view returns (uint) {
+        return tokenIds[token_];
     }
 
     /**
@@ -107,26 +127,24 @@ contract LongVault is AccessControl {
     /**
      * @dev Called when msg.data is not empty
      */
-    function deposit() external payable onlyRole(ADMIN_ROLE) {
+    function deposit() external payable onlyRole(DEFAULT_ADMIN_ROLE) {
         /// uint amount = msg.value;
-        // (bool success,) = address(this).call{value: msg.value}("");
-        // require(success);
+        /// (bool success,) = address(this).call{value: msg.value}("");
+        /// require(success);
         emit EtherDeposited(msg.value, block.timestamp);
     }
 
     /**
      * @dev Called when msg.data is not empty
-     * @param token_ The address of the ERC20 token to deposit.
-     * @param amount_ The amount of the ERC20 token to be deposited.
+     * @param token_ The address of the token to deposit.
+     * @param amount_ The amount of the token to be deposited.
      */
-    function depositERC20(
+    function depositToken(
         address token_,
         uint amount_
-    ) external payable onlyRole(ADMIN_ROLE) {
-        tokens[token_] += amount_;
-        lastDepositAmount = amount_;
-        lastDepositDate = block.timestamp;
-        emit ERC20Deposited(token_, amount_, block.timestamp);
+    ) external payable onlyRole(DEFAULT_ADMIN_ROLE) {        
+        tokens.deposit(tokenId(token_), amount_);
+        emit TokenDeposited(token_, amount_, block.timestamp);
     }
 
     /**
@@ -138,7 +156,7 @@ contract LongVault is AccessControl {
     function createEtherRelease(
         uint amount_,
         uint releaseTime_
-    ) public onlyRole(ADMIN_ROLE) {
+    ) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(releaseTime_ > block.timestamp, "LongVault: release time is before current time");
         etherReleases.push(EtherRelease({
             id: etherReleaseCount,
@@ -153,36 +171,36 @@ contract LongVault is AccessControl {
     }
 
     /**
-     * @dev Create and add a new ERC20 token Release
-     * @param token_ The address of the ERC20 token to release.
-     * @param amount_ The amount of the ERC20 token to be released.
+     * @dev Create and add a new TokenRelease
+     * @param token_ The address of the token to release.
+     * @param amount_ The amount of the token to be released.
      * @param releaseTime_ The future unix timestamp of when the release will occur.
      */
     /// TODO: Add and build support for repeatedAnnually bool param
-    function createERC20Release(
+    function createTokenRelease(
         address token_,
         uint amount_,
         uint releaseTime_
-    ) public onlyRole(ADMIN_ROLE) {
+    ) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(releaseTime_ > block.timestamp, "LongVault: release time is before current time");
-        erc20Releases.push(ERC20Release({
-            id: erc20ReleaseCount,
+        tokenReleases.push(TokenRelease({
+            id: tokenReleaseCount,
             token: token_,
             amount: amount_,
             releaseTime: releaseTime_,
             released: false,
             repeatedAnnually: false
         }));
-        erc20ReleaseCount++;
+        tokenReleaseCount++;
         totalReleaseCount++;
-        emit ERC20ReleaseCreated(token_, amount_, releaseTime_);
+        emit TokenReleaseCreated(token_, amount_, releaseTime_);
     }
 
     /**
-     * @dev Release ether to beneficiary.
+     * @dev Release ether to the beneficiary.
      * @param amount_ The amount of ether to release.
      */
-    function releaseEther(uint amount_) public onlyRole(ADMIN_ROLE) {
+    function releaseEther(uint amount_) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(
             address(this).balance >= amount_,
             "LongVault: ether release amount is greater than ether balance"
@@ -193,18 +211,26 @@ contract LongVault is AccessControl {
     }
 
     /**
-     * @dev Release ERC20 tokens to beneficiary.
-     * @param token_ The ERC20 token to release.
+     * @dev Release tokens to the beneficiary.
+     * @param token_ The token to release.
      * @param amount_ The amount of the token to release.
      */
-    function releaseERC20(address token_, uint amount_) public onlyRole(ADMIN_ROLE) {
+    function releaseToken(address token_, uint amount_) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        uint tokenBalance = tokens.balanceOf(address(tokens), tokenId(token_));
         require(
-            tokens[token_] >= amount_,
+            tokenBalance >= amount_,
             "LongVault: token release amount is greater than token balance"
         );
-        token(token_).safeTransferFrom(address(this), beneficiary, amount_);
-        tokens[token_] -= amount_;
-        emit ERC20Released(token_, amount_, block.timestamp);
+        /// token(token_).safeTransferFrom(address(this), beneficiary, amount_);
+        tokens.safeTransferFrom(
+            address(tokens),
+            beneficiary,
+            tokenId(token_),
+            amount_,
+            msg.data
+        );
+        // tokens[token_] -= amount_;
+        emit TokenReleased(token_, amount_, block.timestamp);
     }
 
     /**
@@ -215,11 +241,11 @@ contract LongVault is AccessControl {
     }
 
     /**
-     * @dev Get ERC20 token balances
-     * @param token_ The address of the ERC20 token to get the balance of.
+     * @dev Get token balances
+     * @param token_ The address of the token to get the balance of.
      */
-    function getERC20Balance(address token_) public view returns (uint) {
-        return tokens[token_];
+    function getTokenBalance(address token_) public view returns (uint) {
+        return tokens.balanceOf(address(tokens), tokenId(token_));
     }
 
     /**
@@ -230,10 +256,10 @@ contract LongVault is AccessControl {
     }
 
     /**
-     * @dev Get ERC20 token releases
+     * @dev Get token releases
      */
-    function getERC20Releases() public view returns (ERC20Release[] memory) {
-        return erc20Releases;
+    function getTokenReleases() public view returns (TokenRelease[] memory) {
+        return tokenReleases;
     }
     
 }

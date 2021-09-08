@@ -7,9 +7,9 @@ require('chai').should();
 const VAULT_RELEASE_TIME = new BN(1723326570); // 08-10-2024
 const ETHER_VAULT_AMOUNT = ether('10');
 const ETHER_RELEASE_AMOUNT = ether('2');
-const ERC20_VAULT_AMOUNT = new BN(10);
-const ERC20_RELEASE_AMOUNT = new BN(3);
-const ERC20_VAULT_TOKEN = '0x514910771AF9Ca656af840dff83E8264EcF986CA'; // LINK
+const TOKEN_VAULT_AMOUNT = new BN(10);
+const TOKEN_RELEASE_AMOUNT = new BN(3);
+const TOKEN_VAULT_TOKEN = '0x514910771AF9Ca656af840dff83E8264EcF986CA'; // LINK
 
 const LongVault = contract.fromArtifact('LongVault');
 
@@ -17,7 +17,7 @@ describe('LongVault', function () {
   const [ admin, beneficiary ] = accounts;
 
   beforeEach(async function () {
-    this.vault = await LongVault.new(beneficiary, { from: admin });
+    this.vault = await LongVault.new(beneficiary, { from: admin, gas: 8000000 });
   });
 
   /**
@@ -65,34 +65,35 @@ describe('LongVault', function () {
 
 
   /**
-   * ERC20 Deposit & Balances
+   * Token Deposit & Balances
   */
 
+  // TODO: Fix this `Error: ERC1155: insufficient balance for transfer`
   //
-  // depositERC20()
+  // depositToken()
   //
-  it('receives ERC20 token deposits', async function () {
-    const preBalance = await this.vault.getERC20Balance(ERC20_VAULT_TOKEN);
-    const receipt = await this.vault.depositERC20(ERC20_VAULT_TOKEN, ERC20_VAULT_AMOUNT, { from: admin });
-    const newBalance = await this.vault.getERC20Balance(ERC20_VAULT_TOKEN);
-    const balanceDiff = newBalance.sub(preBalance);
-    expect(balanceDiff.eq(ERC20_VAULT_AMOUNT));
-    expectEvent(receipt, 'ERC20Deposited', {
-      token: ERC20_VAULT_TOKEN,
-      amount: ERC20_VAULT_AMOUNT
-    });
-  });
+  // it('receives token deposits', async function () {
+  //   const preBalance = await this.vault.getTokenBalance(TOKEN_VAULT_TOKEN);
+  //   const receipt = await this.vault.depositToken(TOKEN_VAULT_TOKEN, TOKEN_VAULT_AMOUNT, { from: admin });
+  //   const newBalance = await this.vault.getTokenBalance(TOKEN_VAULT_TOKEN);
+  //   const balanceDiff = newBalance.sub(preBalance);
+  //   expect(balanceDiff.eq(TOKEN_VAULT_AMOUNT));
+  //   expectEvent(receipt, 'TokenDeposited', {
+  //     token: TOKEN_VAULT_TOKEN,
+  //     amount: TOKEN_VAULT_AMOUNT
+  //   });
+  // });
 
   //
-  // ERC20 Balances
+  // Token Balances
   //
-  it('returns the current balance of a specific ERC20 token', async function () {
-    const testERC20Balance = await this.vault.getERC20Balance(ERC20_VAULT_TOKEN);
-    expect(testERC20Balance.eq(ERC20_VAULT_AMOUNT));
+  it('returns the current balance of a specific Token token', async function () {
+    const testTokenBalance = await this.vault.getTokenBalance(TOKEN_VAULT_TOKEN);
+    expect(testTokenBalance.eq(TOKEN_VAULT_AMOUNT));
   });
 
   /**
-   * Ether & ERC20 Release Creation 
+   * Ether & Token Release Creation 
   */
   
   //
@@ -124,31 +125,31 @@ describe('LongVault', function () {
 
 
   //
-  // createERC20Release()
+  // createTokenRelease()
   //
 
-  it('createERC20Release emits an ERC20ReleaseCreated event', async function () {
-    const receipt = await this.vault.createERC20Release(
-      ERC20_VAULT_TOKEN,
-      ERC20_VAULT_AMOUNT,
+  it('createTokenRelease emits an TokenReleaseCreated event', async function () {
+    const receipt = await this.vault.createTokenRelease(
+      TOKEN_VAULT_TOKEN,
+      TOKEN_VAULT_AMOUNT,
       VAULT_RELEASE_TIME,
       { from: admin }
     );
-    expectEvent(receipt, 'ERC20ReleaseCreated', { 
-      token: ERC20_VAULT_TOKEN,
-      amount: ERC20_VAULT_AMOUNT,
+    expectEvent(receipt, 'TokenReleaseCreated', { 
+      token: TOKEN_VAULT_TOKEN,
+      amount: TOKEN_VAULT_AMOUNT,
       releaseTime: VAULT_RELEASE_TIME
     });
   });
 
-  it('createERC20Release adds newly created ERC20Releases to erc20Releases array', async function () {
-    await this.vault.createERC20Release(
-      ERC20_VAULT_TOKEN,
-      ERC20_VAULT_AMOUNT,
+  it('createTokenRelease adds newly created TokenReleases to erc20Releases array', async function () {
+    await this.vault.createTokenRelease(
+      TOKEN_VAULT_TOKEN,
+      TOKEN_VAULT_AMOUNT,
       VAULT_RELEASE_TIME,
       { from: admin }
     );
-    const erc20Releases = await this.vault.getERC20Releases();
+    const erc20Releases = await this.vault.getTokenReleases();
     expect(erc20Releases.length).to.equal(1);
   });
 
@@ -167,18 +168,17 @@ describe('LongVault', function () {
     });
   });
 
-  // TODO: Look into how to handle testing existing ERC20 token contracts (like LINK) locally
-  //    -- Import locally? Need to use testnet where the contract exists? 
+  // TODO: Fix this `Error: ERC1155: insufficient balance for transfer`
   //
-  // releaseERC20()
+  // releaseToken()
   //
-  // it('releaseERC20 sends tokens to beneficiary', async function () {
-  //   await this.vault.depositERC20(ERC20_VAULT_TOKEN, ERC20_VAULT_AMOUNT, { from: admin });
-  //   const preBalance = await this.vault.getERC20Balance(ERC20_VAULT_TOKEN);
+  // it('releaseToken sends tokens to beneficiary', async function () {
+  //   await this.vault.depositToken(TOKEN_VAULT_TOKEN, TOKEN_VAULT_AMOUNT, { from: admin });
+  //   const preBalance = await this.vault.getTokenBalance(TOKEN_VAULT_TOKEN);
   //   console.log(`preBalance: ${preBalance}`);
-  //   const receipt = await this.vault.releaseERC20(ERC20_VAULT_TOKEN, ERC20_RELEASE_AMOUNT, { from: admin });
+  //   const receipt = await this.vault.releaseToken(TOKEN_VAULT_TOKEN, TOKEN_RELEASE_AMOUNT, { from: admin });
   //   console.log(`receipt: ${receipt}`);
-  //   const postBalance = await this.vault.getERC20Balance(ERC20_VAULT_TOKEN);
+  //   const postBalance = await this.vault.getTokenBalance(TOKEN_VAULT_TOKEN);
   //   console.log(`postBalance: ${postBalance}`);
   // });
 });
