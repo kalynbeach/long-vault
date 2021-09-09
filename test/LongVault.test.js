@@ -15,6 +15,7 @@ const TOKEN_RELEASE_AMOUNT = new BN(3);
 const LongVault = contract.fromArtifact('LongVault');
 const LVTT = contract.fromArtifact('LongVaultTestToken');
 
+
 describe('LongVault', function () {
   const [ admin, beneficiary ] = accounts;
 
@@ -76,36 +77,16 @@ describe('LongVault', function () {
    * Token Deposit & Balances
   */
 
-  // TODO: Fix this `Error: ERC1155: insufficient balance for transfer`
   //
   // depositToken()
   //
   it('receives token deposits', async function () {
-    // const _adminAllowance = await this.token.allowance(admin, this.vault.address);
-    // console.log(`_adminAllowance: ${_adminAllowance}`);
-    // const _vaultAllowance = await this.token.allowance(this.vault.address, admin);
-    // console.log(`_vaultAllowance: ${_vaultAllowance}`);
-    // const _adminTokenBalance = await this.token.balanceOf(admin);
-    // console.log(`_adminTokenBalance: ${_adminTokenBalance}`);
-    // const _vaultTokenBalance = await this.token.balanceOf(this.token.address);
-    // console.log(`_vaultTokenBalance: ${_vaultTokenBalance}`);
-
     const receipt = await this.vault.depositToken(
       this.token.address,
       TOKEN_ALLOWANCE_AMOUNT,
       { from: admin }
     );
-    // console.log(`\n<TokenDeposited>\n`);
-
-    // const adminAllowance = await this.token.allowance(admin, this.vault.address);
-    // console.log(`adminAllowance: ${adminAllowance}`);
-    // const vaultAllowance = await this.token.allowance(this.vault.address, admin);
-    // console.log(`vaultAllowance: ${vaultAllowance}`);
-    // const adminTokenBalance = await this.token.balanceOf(admin);
-    // console.log(`adminTokenBalance: ${adminTokenBalance}`);
-
     const vaultTokenBalance = await this.token.balanceOf(this.vault.address);
-    // console.log(`vaultTokenBalance: ${vaultTokenBalance}`);
     expect(vaultTokenBalance.eq(TOKEN_ALLOWANCE_AMOUNT));
     expectEvent(receipt, 'TokenDeposited', {
       token: this.token.address,
@@ -114,7 +95,7 @@ describe('LongVault', function () {
   });
 
   //
-  // Token Balances
+  // getTokenBalance()
   //
   it('returns the current LongVault balance of a specific token', async function () {
     const testTokenBalance = await this.vault.getTokenBalance(this.token.address);
@@ -128,7 +109,6 @@ describe('LongVault', function () {
   //
   // createEtherRelease()
   //
-
   it('createEtherRelease emits an EtherReleaseCreated event', async function () {
     const receipt = await this.vault.createEtherRelease(
       ETHER_VAULT_AMOUNT, 
@@ -156,7 +136,6 @@ describe('LongVault', function () {
   //
   // createTokenRelease()
   //
-
   it('createTokenRelease emits an TokenReleaseCreated event', async function () {
     const receipt = await this.vault.createTokenRelease(
       this.token.address,
@@ -197,52 +176,21 @@ describe('LongVault', function () {
     });
   });
 
-  // TODO: Fix this `Error: ERC1155: insufficient balance for transfer`
   //
   // releaseToken()
   //
   it('releaseToken sends tokens from vault to beneficiary', async function () {
-    // await this.token.increaseAllowance(this.vault.address, TOKEN_ALLOWANCE_AMOUNT);
-    // const _adminAllowance = await this.token.allowance(admin, this.vault.address);
-    // console.log(`_adminAllowance: ${_adminAllowance}`);
-    // const _vaultAllowance = await this.token.allowance(this.vault.address, admin);
-    // console.log(`_vaultAllowance: ${_vaultAllowance}`);
-    // const _adminTokenBalance = await this.token.balanceOf(admin);
-    // console.log(`_adminTokenBalance: ${_adminTokenBalance}`);
-    // const _vaultTokenBalance = await this.token.balanceOf(this.vault.address);
-    // console.log(`_vaultTokenBalance: ${_vaultTokenBalance}`);
-
     await this.vault.depositToken(
       this.token.address,
       TOKEN_ALLOWANCE_AMOUNT,
       { from: admin }
     );
-    // console.log(`\n<TokenDeposited>\n`);
-
-    // const adminAllowance = await this.token.allowance(admin, this.vault.address);
-    // console.log(`adminAllowance: ${adminAllowance}`);
-    // const vaultAllowance = await this.token.allowance(this.vault.address, admin);
-    // console.log(`vaultAllowance: ${vaultAllowance}`);
-
-    // const adminTokenBalance = await this.token.balanceOf(admin);
-    // console.log(`adminTokenBalance: ${adminTokenBalance}`);
-    // const vaultTokenBalance = await this.token.balanceOf(this.vault.address);
-    // console.log(`vaultTokenBalance: ${vaultTokenBalance}`);
-
     await this.vault.releaseToken(
       this.token.address,
       TOKEN_RELEASE_AMOUNT,
       { from: admin }
     );
-    // console.log(`\n<TokenReleased>\n`);
-    
-    const postBalance = await this.token.balanceOf(this.vault.address);
-    const expectedBalance = TOKEN_ALLOWANCE_AMOUNT - TOKEN_RELEASE_AMOUNT;
     const beneficiaryTokenBalance = await this.token.balanceOf(beneficiary);
-    // console.log(`postBalance: ${postBalance}`);
-    // console.log(`expectedBalance: ${expectedBalance}`);
-    // console.log(`*** beneficiaryTokenBalance: ${beneficiaryTokenBalance}\n`);
-
-    expect(postBalance.eq(expectedBalance));
+    expect(beneficiaryTokenBalance.eq(TOKEN_RELEASE_AMOUNT));
   });
 });

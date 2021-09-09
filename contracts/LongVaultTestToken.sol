@@ -16,11 +16,6 @@ contract LongVaultTestToken is ERC20, Ownable {
         increaseAllowance(vault_, initialAllowance_); /// LongVault
     }
 
-    // function increaseVaultAllowance(address vault_, uint amount_) public onlyOwner {
-    //     // uint currentAllowance = allowance(vault_, msg.sender);
-    //     increaseAllowance(vault_, amount_);
-    // }
-
     function mint(address to_, uint256 amount_) public onlyOwner {
         _mint(to_, amount_);
     }

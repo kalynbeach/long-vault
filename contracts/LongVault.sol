@@ -3,26 +3,21 @@ pragma solidity ^0.8.6;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
-import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
-import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-// import "./LongVaultTokens.sol";
-// import "./LongVaultTestToken.sol";
 
-// > LongVault creation
-// - TODO: Read up on factory pattern, implement it as needed
+/// > LongVault creation
+/// - TODO: Read up on factory pattern, implement it as needed
 
-// > LongVault setup
-// - TODO: Ensure eth receive() works as intended
-// - TODO: Figure out of fallback() is necessary
+/// > LongVault setup
+/// - TODO: Figure out of fallback() is necessary
 
-// > LongVault operation & maintainence 
-// - TODO: Create release() calling mechanism
-// -- Needs to check current datetime against Release struct/object timestamps
+/// > LongVault operation & maintainence 
+/// - TODO: Create release() calling mechanism
+/// -- Needs to check current datetime against Release struct/object timestamps
 
 
-contract LongVault is AccessControl, ERC1155Holder {
+contract LongVault is AccessControl {
     using Address for address payable;
     using SafeERC20 for IERC20;
 
@@ -52,10 +47,6 @@ contract LongVault is AccessControl, ERC1155Holder {
         bool repeatedAnnually;
     }
 
-    // LongVaultTokens public tokens;
-    mapping(address => uint) public tokenIds;
-    /// uint private tokenIdCount = 0;
-
     EtherRelease[] public etherReleases;
     TokenRelease[] public tokenReleases;
 
@@ -83,34 +74,6 @@ contract LongVault is AccessControl, ERC1155Holder {
     }
 
     /**
-     * @dev Needed for ERC1155Holder
-     */
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        virtual
-        override(AccessControl, ERC1155Receiver)
-        returns (bool) {
-        return interfaceId == type(IERC1155).interfaceId || super.supportsInterface(interfaceId);
-    }
-
-    /**
-     * @param token_ The address of the token contract.
-     * @return the internal ERC1155 token id.
-     */
-    function tokenId(address token_) private view returns (uint) {
-        return tokenIds[token_];
-    }
-
-    /**
-     * @param token_ The address of the ERC20 token contract.
-     * @return the ERC20 token being held.
-     */
-    function token(address token_) public view virtual returns (IERC20) {
-        return IERC20(token_);
-    }
-
-    /**
      * @dev Receive ETH (when msg.data is empty)
      */
     receive() external payable {
@@ -123,6 +86,14 @@ contract LongVault is AccessControl, ERC1155Holder {
      */
     fallback() external payable {
         emit EtherDeposited(msg.value, block.timestamp);
+    }
+
+    /**
+     * @param token_ The address of the ERC20 token contract.
+     * @return the ERC20 token being held.
+     */
+    function token(address token_) public view virtual returns (IERC20) {
+        return IERC20(token_);
     }
 
     /**
@@ -154,12 +125,12 @@ contract LongVault is AccessControl, ERC1155Holder {
         emit TokenDeposited(token_, amount_, block.timestamp);
     }
 
+    /// TODO: Add and build support for repeatedAnnually bool param
     /**
      * @dev Create and add a new ether Release.
      * @param amount_ The amount of Ether to be released.
      * @param releaseTime_ The future unix timestamp of when the release will occur.
      */
-    /// TODO: Add and build support for repeatedAnnually bool param
     function createEtherRelease(
         uint amount_,
         uint releaseTime_
@@ -177,13 +148,13 @@ contract LongVault is AccessControl, ERC1155Holder {
         emit EtherReleaseCreated(amount_, releaseTime_);
     }
 
+    /// TODO: Add and build support for repeatedAnnually bool param
     /**
      * @dev Create and add a new TokenRelease
      * @param token_ The address of the token to release.
      * @param amount_ The amount of the token to be released.
      * @param releaseTime_ The future unix timestamp of when the release will occur.
      */
-    /// TODO: Add and build support for repeatedAnnually bool param
     function createTokenRelease(
         address token_,
         uint amount_,
@@ -232,7 +203,6 @@ contract LongVault is AccessControl, ERC1155Holder {
         );
         _token.safeIncreaseAllowance(address(this), amount_);
         _token.safeTransferFrom(address(this), beneficiary, amount_);
-        /// tokens[token_] -= amount_;
         emit TokenReleased(token_, amount_, block.timestamp);
     }
 
@@ -249,7 +219,6 @@ contract LongVault is AccessControl, ERC1155Holder {
      */
     function getTokenBalance(address token_) public view returns (uint) {
         return token(token_).balanceOf(address(this));
-        // return tokens.balanceOf(address(tokens), tokenId(token_));
     }
 
     /**
