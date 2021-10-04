@@ -12,22 +12,52 @@ const TOKEN_ALLOWANCE_AMOUNT = new BN(50);
 const TOKEN_RELEASE_AMOUNT = new BN(3);
 // const TOKEN_VAULT_TOKEN = '0x514910771AF9Ca656af840dff83E8264EcF986CA'; // LINK
 
+const LongVaultFactory = contract.fromArtifact('LongVaultFactory');
 const LongVault = contract.fromArtifact('LongVault');
 const LVTT = contract.fromArtifact('LongVaultTestToken');
+
+
+async function createTestLongVault(admin, beneficiary) {
+  console.log(`******** createTestLongVault admin: ${admin}`);
+  console.log(`******** createTestLongVault beneficiary: ${beneficiary}`);
+  const factory = await LongVaultFactory.new(beneficiary, { from: admin, gas: 8000000 });
+  // console.dir(factory);
+  console.log(`******** createTestLongVault factory: ${factory.address}`);
+  const vaultReceipt = await factory.createLongVault(admin, beneficiary);
+  const vaultAddress = vaultReceipt.logs[0].args.cloneAddress;
+  const vault = await LongVault.at(vaultAddress);
+  // console.dir(vaultReceipt);
+  console.log(`******** createTestLongVault vaultReceipt: ${vaultReceipt}`);
+  console.log(`******** createTestLongVault vaultAddress: ${vaultAddress}`);
+  return vault;
+}
 
 
 describe('LongVault', function () {
   const [ admin, beneficiary ] = accounts;
 
-  beforeEach(async function () {
-    this.vault = await LongVault.new(beneficiary, { from: admin, gas: 8000000 });
+  before(async function() {
+    this.vault = await createTestLongVault(admin, beneficiary);
     this.token = await LVTT.new(
       this.vault.address,
       TOKEN_VAULT_AMOUNT,
       TOKEN_ALLOWANCE_AMOUNT,
       { from: admin, gas: 8000000 }
     );
+    console.log(`******** before this.vault: ${this.vault}`);
+    console.log(`******** before this.vault.address: ${this.vault.address}`);
+    // console.log(`******** before this.token: ${this.token}`);
   });
+
+  // beforeEach(async function () {
+    // this.token = await LVTT.new(
+    //   this.vault.address,
+    //   TOKEN_VAULT_AMOUNT,
+    //   TOKEN_ALLOWANCE_AMOUNT,
+    //   { from: admin, gas: 8000000 }
+    // );
+    // console.log(`******** before this.token: ${this.token}`);
+  // });
 
   /**
    * Initial State
@@ -129,6 +159,8 @@ describe('LongVault', function () {
       { from: admin }
     );
     const etherReleases = await this.vault.getEtherReleases();
+    console.log(`******** createEtherRelease etherReleases: ${etherReleases}`);
+    console.dir(etherReleases);
     expect(etherReleases.length).to.equal(1);
   });
 
@@ -158,6 +190,8 @@ describe('LongVault', function () {
       { from: admin }
     );
     const erc20Releases = await this.vault.getTokenReleases();
+    console.log(`******** createTokenRelease erc20Releases: ${erc20Releases}`);
+    console.dir(erc20Releases);
     expect(erc20Releases.length).to.equal(1);
   });
 

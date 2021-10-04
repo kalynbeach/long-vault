@@ -3,6 +3,7 @@ pragma solidity ^0.8.6;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
+import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 
@@ -17,7 +18,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 /// -- Needs to check current datetime against Release struct/object timestamps
 
 
-contract LongVault is AccessControl {
+contract LongVault is AccessControl, Initializable {
     using Address for address payable;
     using SafeERC20 for IERC20;
 
@@ -52,7 +53,7 @@ contract LongVault is AccessControl {
 
     bytes32 public constant BENEFICIARY_ROLE = keccak256("BENEFICIARY_ROLE");
 
-    address public admin;
+    address payable public admin;
     address payable public beneficiary;
     
     uint public createdAt;
@@ -63,15 +64,26 @@ contract LongVault is AccessControl {
     uint public lastDepositDate;
     uint public lastDepositAmount;
     address public lastDepositToken;
-    
-    constructor(address payable beneficiary_) {
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+
+    /// TODO: Implement initialize function
+    function initialize(
+        address payable admin_,
+        address payable beneficiary_
+    ) public virtual initializer {
+        _setupRole(DEFAULT_ADMIN_ROLE, admin_);
         _setupRole(BENEFICIARY_ROLE, beneficiary_);
-        admin = msg.sender;
+        admin = admin_;
         beneficiary = beneficiary_;
-        /// tokens = new LongVaultTokens(beneficiary_);
         createdAt = block.timestamp;
     }
+    
+    // constructor(address payable beneficiary_) {
+    //     _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    //     _setupRole(BENEFICIARY_ROLE, beneficiary_);
+    //     admin = msg.sender;
+    //     beneficiary = beneficiary_;
+    //     createdAt = block.timestamp;
+    // }
 
     /**
      * @dev Receive ETH (when msg.data is empty)
