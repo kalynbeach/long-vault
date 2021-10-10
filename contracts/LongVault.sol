@@ -7,8 +7,6 @@ import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 
-/// > LongVault creation
-/// - TODO: Read up on factory pattern, implement it as needed
 
 /// > LongVault setup
 /// - TODO: Figure out of fallback() is necessary
@@ -29,23 +27,25 @@ contract LongVault is AccessControl, Initializable {
     event TokenReleaseCreated(address token, uint amount, uint releaseTime);
     event TokenReleased(address token, uint amount, uint releaseTime);
 
-    /// TODO: Add & support uint createdTime
     struct EtherRelease {
         uint id;
         uint amount;
+        uint createdTime;
         uint releaseTime;
         bool released;
-        bool repeatedAnnually;
+        bool repeated;
+        uint frequency; // Repeated Releases per year
     }
 
-    /// TODO: Add & support uint createdTime
     struct TokenRelease {
-        uint id;
         address token;
+        uint id;
         uint amount;
+        uint createdTime;
         uint releaseTime;
         bool released;
-        bool repeatedAnnually;
+        bool repeated;
+        uint frequency;
     }
 
     EtherRelease[] public etherReleases;
@@ -65,7 +65,6 @@ contract LongVault is AccessControl, Initializable {
     uint public lastDepositAmount;
     address public lastDepositToken;
 
-    /// TODO: Implement initialize function
     function initialize(
         address payable admin_,
         address payable beneficiary_
@@ -76,20 +75,11 @@ contract LongVault is AccessControl, Initializable {
         beneficiary = beneficiary_;
         createdAt = block.timestamp;
     }
-    
-    // constructor(address payable beneficiary_) {
-    //     _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-    //     _setupRole(BENEFICIARY_ROLE, beneficiary_);
-    //     admin = msg.sender;
-    //     beneficiary = beneficiary_;
-    //     createdAt = block.timestamp;
-    // }
 
     /**
      * @dev Receive ETH (when msg.data is empty)
      */
     receive() external payable {
-        /// TODO: Implement as needed
         emit EtherDeposited(msg.value, block.timestamp);
     }
 
@@ -137,7 +127,6 @@ contract LongVault is AccessControl, Initializable {
         emit TokenDeposited(token_, amount_, block.timestamp);
     }
 
-    /// TODO: Add and build support for repeatedAnnually bool param
     /**
      * @dev Create and add a new ether Release.
      * @param amount_ The amount of Ether to be released.
@@ -145,22 +134,25 @@ contract LongVault is AccessControl, Initializable {
      */
     function createEtherRelease(
         uint amount_,
-        uint releaseTime_
+        uint releaseTime_,
+        bool repeated_,
+        uint frequency_
     ) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(releaseTime_ > block.timestamp, "LongVault: release time is before current time");
         etherReleases.push(EtherRelease({
             id: etherReleaseCount,
             amount: amount_,
+            createdTime: block.timestamp,
             releaseTime: releaseTime_,
             released: false,
-            repeatedAnnually: false
+            repeated: repeated_,
+            frequency: frequency_
         }));
         etherReleaseCount++;
         totalReleaseCount++;
         emit EtherReleaseCreated(amount_, releaseTime_);
     }
 
-    /// TODO: Add and build support for repeatedAnnually bool param
     /**
      * @dev Create and add a new TokenRelease
      * @param token_ The address of the token to release.
@@ -170,16 +162,20 @@ contract LongVault is AccessControl, Initializable {
     function createTokenRelease(
         address token_,
         uint amount_,
-        uint releaseTime_
+        uint releaseTime_,
+        bool repeated_,
+        uint frequency_
     ) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(releaseTime_ > block.timestamp, "LongVault: release time is before current time");
         tokenReleases.push(TokenRelease({
             id: tokenReleaseCount,
             token: token_,
             amount: amount_,
+            createdTime: block.timestamp,
             releaseTime: releaseTime_,
             released: false,
-            repeatedAnnually: false
+            repeated: repeated_,
+            frequency: frequency_
         }));
         tokenReleaseCount++;
         totalReleaseCount++;

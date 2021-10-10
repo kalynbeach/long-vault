@@ -126,6 +126,8 @@ describe('LongVault', function () {
     const receipt = await this.vault.createEtherRelease(
       ETHER_VAULT_AMOUNT, 
       VAULT_RELEASE_TIME,
+      false, // repeated
+      1, // frequency
       { from: admin }
     );
     // TODO: Ether to wei conversion here?
@@ -139,6 +141,8 @@ describe('LongVault', function () {
     await this.vault.createEtherRelease(
       ETHER_VAULT_AMOUNT, 
       VAULT_RELEASE_TIME,
+      false, // repeated
+      1, // frequency
       { from: admin }
     );
     const etherReleases = await this.vault.getEtherReleases();
@@ -154,6 +158,8 @@ describe('LongVault', function () {
       this.token.address,
       TOKEN_RELEASE_AMOUNT,
       VAULT_RELEASE_TIME,
+      false, // repeated
+      1, // frequency
       { from: admin }
     );
     expectEvent(receipt, 'TokenReleaseCreated', { 
@@ -168,6 +174,8 @@ describe('LongVault', function () {
       this.token.address,
       TOKEN_RELEASE_AMOUNT,
       VAULT_RELEASE_TIME,
+      false, // repeated
+      1, // frequency
       { from: admin }
     );
     const erc20Releases = await this.vault.getTokenReleases();

@@ -27,12 +27,12 @@ contract LongVaultFactory {
         address payable admin_,
         address payable beneficiary_
     ) external returns (address payable) {
-        // address clone = Clones.clone(longVaultImplementation);
         bytes32 salt = keccak256(abi.encodePacked(admin_));
         address clone = Clones.cloneDeterministic(
             longVaultImplementation,
             salt
         );
+        /// TODO: Read up payable Clones, make sure this is the move
         address payable payableClone = payable(clone);
         LongVault(payableClone).initialize(admin_, beneficiary_);
         emit LongVaultCreated(
