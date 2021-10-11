@@ -7,6 +7,9 @@ import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 
+/**
+    LongVault
+*/
 
 /// > LongVault setup
 /// - TODO: Figure out of fallback() is necessary

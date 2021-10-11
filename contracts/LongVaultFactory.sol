@@ -5,6 +5,11 @@ import "./LongVault.sol";
 import "@openzeppelin/contracts/proxy/Clones.sol";
 
 
+/**
+    LongVaultFactory: LongVault Clone factory
+*/
+
+
 contract LongVaultFactory {
     using Address for address payable;
 
