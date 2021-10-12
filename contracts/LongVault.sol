@@ -3,11 +3,13 @@ pragma solidity ^0.8.6;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
+import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 
-/// > LongVault creation
-/// - TODO: Read up on factory pattern, implement it as needed
+/**
+    LongVault
+*/
 
 /// > LongVault setup
 /// - TODO: Figure out of fallback() is necessary
@@ -17,7 +19,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 /// -- Needs to check current datetime against Release struct/object timestamps
 
 
-contract LongVault is AccessControl {
+contract LongVault is AccessControl, Initializable {
     using Address for address payable;
     using SafeERC20 for IERC20;
 
@@ -28,23 +30,25 @@ contract LongVault is AccessControl {
     event TokenReleaseCreated(address token, uint amount, uint releaseTime);
     event TokenReleased(address token, uint amount, uint releaseTime);
 
-    /// TODO: Add & support uint createdTime
     struct EtherRelease {
         uint id;
         uint amount;
+        uint createdTime;
         uint releaseTime;
         bool released;
-        bool repeatedAnnually;
+        bool repeated;
+        uint frequency; // Repeated Releases per year
     }
 
-    /// TODO: Add & support uint createdTime
     struct TokenRelease {
-        uint id;
         address token;
+        uint id;
         uint amount;
+        uint createdTime;
         uint releaseTime;
         bool released;
-        bool repeatedAnnually;
+        bool repeated;
+        uint frequency;
     }
 
     EtherRelease[] public etherReleases;
@@ -52,7 +56,7 @@ contract LongVault is AccessControl {
 
     bytes32 public constant BENEFICIARY_ROLE = keccak256("BENEFICIARY_ROLE");
 
-    address public admin;
+    address payable public admin;
     address payable public beneficiary;
     
     uint public createdAt;
@@ -63,13 +67,15 @@ contract LongVault is AccessControl {
     uint public lastDepositDate;
     uint public lastDepositAmount;
     address public lastDepositToken;
-    
-    constructor(address payable beneficiary_) {
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+
+    function initialize(
+        address payable admin_,
+        address payable beneficiary_
+    ) public virtual initializer {
+        _setupRole(DEFAULT_ADMIN_ROLE, admin_);
         _setupRole(BENEFICIARY_ROLE, beneficiary_);
-        admin = msg.sender;
+        admin = admin_;
         beneficiary = beneficiary_;
-        /// tokens = new LongVaultTokens(beneficiary_);
         createdAt = block.timestamp;
     }
 
@@ -77,7 +83,6 @@ contract LongVault is AccessControl {
      * @dev Receive ETH (when msg.data is empty)
      */
     receive() external payable {
-        /// TODO: Implement as needed
         emit EtherDeposited(msg.value, block.timestamp);
     }
 
@@ -125,7 +130,6 @@ contract LongVault is AccessControl {
         emit TokenDeposited(token_, amount_, block.timestamp);
     }
 
-    /// TODO: Add and build support for repeatedAnnually bool param
     /**
      * @dev Create and add a new ether Release.
      * @param amount_ The amount of Ether to be released.
@@ -133,22 +137,25 @@ contract LongVault is AccessControl {
      */
     function createEtherRelease(
         uint amount_,
-        uint releaseTime_
+        uint releaseTime_,
+        bool repeated_,
+        uint frequency_
     ) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(releaseTime_ > block.timestamp, "LongVault: release time is before current time");
         etherReleases.push(EtherRelease({
             id: etherReleaseCount,
             amount: amount_,
+            createdTime: block.timestamp,
             releaseTime: releaseTime_,
             released: false,
-            repeatedAnnually: false
+            repeated: repeated_,
+            frequency: frequency_
         }));
         etherReleaseCount++;
         totalReleaseCount++;
         emit EtherReleaseCreated(amount_, releaseTime_);
     }
 
-    /// TODO: Add and build support for repeatedAnnually bool param
     /**
      * @dev Create and add a new TokenRelease
      * @param token_ The address of the token to release.
@@ -158,16 +165,20 @@ contract LongVault is AccessControl {
     function createTokenRelease(
         address token_,
         uint amount_,
-        uint releaseTime_
+        uint releaseTime_,
+        bool repeated_,
+        uint frequency_
     ) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(releaseTime_ > block.timestamp, "LongVault: release time is before current time");
         tokenReleases.push(TokenRelease({
             id: tokenReleaseCount,
             token: token_,
             amount: amount_,
+            createdTime: block.timestamp,
             releaseTime: releaseTime_,
             released: false,
-            repeatedAnnually: false
+            repeated: repeated_,
+            frequency: frequency_
         }));
         tokenReleaseCount++;
         totalReleaseCount++;

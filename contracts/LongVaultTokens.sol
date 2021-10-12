@@ -7,6 +7,11 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 
 
+/**
+    LongVaultTokens: Mostly an exploration of ERC1155, probably useless
+*/
+
+
 contract LongVaultTokens is ERC1155, AccessControl {
     using Address for address payable;
 

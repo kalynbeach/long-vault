@@ -12,15 +12,28 @@ const TOKEN_ALLOWANCE_AMOUNT = new BN(50);
 const TOKEN_RELEASE_AMOUNT = new BN(3);
 // const TOKEN_VAULT_TOKEN = '0x514910771AF9Ca656af840dff83E8264EcF986CA'; // LINK
 
+const LongVaultFactory = contract.fromArtifact('LongVaultFactory');
 const LongVault = contract.fromArtifact('LongVault');
 const LVTT = contract.fromArtifact('LongVaultTestToken');
+
+
+//
+// LongVault creation via LongVaultFactory
+//
+async function createTestLongVault(admin, beneficiary) {
+  const factory = await LongVaultFactory.new(beneficiary, { from: admin, gas: 8000000 });
+  const vaultReceipt = await factory.createLongVault(admin, beneficiary);
+  const vaultAddress = vaultReceipt.logs[0].args.cloneAddress;
+  const vault = await LongVault.at(vaultAddress);
+  return vault;
+}
 
 
 describe('LongVault', function () {
   const [ admin, beneficiary ] = accounts;
 
   beforeEach(async function () {
-    this.vault = await LongVault.new(beneficiary, { from: admin, gas: 8000000 });
+    this.vault = await createTestLongVault(admin, beneficiary);
     this.token = await LVTT.new(
       this.vault.address,
       TOKEN_VAULT_AMOUNT,
@@ -113,6 +126,8 @@ describe('LongVault', function () {
     const receipt = await this.vault.createEtherRelease(
       ETHER_VAULT_AMOUNT, 
       VAULT_RELEASE_TIME,
+      false, // repeated
+      1, // frequency
       { from: admin }
     );
     // TODO: Ether to wei conversion here?
@@ -126,6 +141,8 @@ describe('LongVault', function () {
     await this.vault.createEtherRelease(
       ETHER_VAULT_AMOUNT, 
       VAULT_RELEASE_TIME,
+      false, // repeated
+      1, // frequency
       { from: admin }
     );
     const etherReleases = await this.vault.getEtherReleases();
@@ -141,6 +158,8 @@ describe('LongVault', function () {
       this.token.address,
       TOKEN_RELEASE_AMOUNT,
       VAULT_RELEASE_TIME,
+      false, // repeated
+      1, // frequency
       { from: admin }
     );
     expectEvent(receipt, 'TokenReleaseCreated', { 
@@ -155,6 +174,8 @@ describe('LongVault', function () {
       this.token.address,
       TOKEN_RELEASE_AMOUNT,
       VAULT_RELEASE_TIME,
+      false, // repeated
+      1, // frequency
       { from: admin }
     );
     const erc20Releases = await this.vault.getTokenReleases();
