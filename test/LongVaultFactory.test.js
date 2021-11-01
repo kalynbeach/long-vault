@@ -14,4 +14,6 @@ describe('LongVaultFactory', function() {
     this.vault = await this.factory.createLongVault(admin);
     console.log(`LongVaultFactory.test vault: ${this.vault}`);
   });
+
+  // TODO: Write createLongVault unit test
 });

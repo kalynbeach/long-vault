@@ -37,7 +37,7 @@ contract LongVaultFactory {
             longVaultImplementation,
             salt
         );
-        /// TODO: Read up payable Clones, make sure this is the move
+        /// TODO: Read up on payable Clones, make sure this is the move
         address payable payableClone = payable(clone);
         LongVault(payableClone).initialize(admin_, beneficiary_);
         emit LongVaultCreated(
