@@ -1,1 +1,1 @@
-# LongVault
+# long-vault-contracts
