@@ -20,6 +20,13 @@ contract LongVaultFactory {
         uint timestamp
     );
 
+    struct LongVaultsEntry {
+        address admin;
+        address longVaultAddress;
+    }
+
+    LongVaultsEntry[] public allLongVaults;
+    
     address immutable longVaultImplementation;
     address payable implementationBeneficiary;
 
@@ -37,7 +44,7 @@ contract LongVaultFactory {
             longVaultImplementation,
             salt
         );
-        /// TODO: Read up on payable Clones, make sure this is the move
+        /// TODO: Read up on (payable) Clones, make sure this is the move
         address payable payableClone = payable(clone);
         LongVault(payableClone).initialize(admin_, beneficiary_);
         emit LongVaultCreated(
@@ -46,6 +53,11 @@ contract LongVaultFactory {
             beneficiary_,
             block.timestamp
         );
+        allLongVaults.push(LongVaultsEntry(admin_, payableClone));
         return payableClone;
+    }
+
+    function getAllLongVaults() external view returns (LongVaultsEntry[] memory) {
+        return allLongVaults;
     }
 }
