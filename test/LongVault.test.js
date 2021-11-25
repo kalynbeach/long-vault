@@ -66,6 +66,7 @@ describe('LongVault', function () {
   //
   // it('BENEFICIARY_ROLE set to beneficiary address', async function () {});
 
+
   /**
    * Ether Deposit & Balance
   */
@@ -115,6 +116,7 @@ describe('LongVault', function () {
     expect(testTokenBalance.eq(TOKEN_VAULT_AMOUNT));
   });
 
+
   /**
    * Ether & Token Release Creation 
   */
@@ -149,7 +151,6 @@ describe('LongVault', function () {
     expect(etherReleases.length).to.equal(1);
   });
 
-
   //
   // createTokenRelease()
   //
@@ -181,6 +182,7 @@ describe('LongVault', function () {
     const erc20Releases = await this.vault.getTokenReleases();
     expect(erc20Releases.length).to.equal(1);
   });
+
 
   /**
    * Ether & Token Releases
