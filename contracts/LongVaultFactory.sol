@@ -60,4 +60,12 @@ contract LongVaultFactory {
     function getAllLongVaults() external view returns (LongVaultsEntry[] memory) {
         return allLongVaults;
     }
+
+    function getLongVaultImplementation() external view returns (address) {
+        return longVaultImplementation;
+    }
+
+    function getImplementationBeneficiary() external view returns (address) {
+        return implementationBeneficiary;
+    }
 }

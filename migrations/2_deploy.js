@@ -1,6 +1,8 @@
-const LongVault = artifacts.require('LongVault');
+const LongVaultFactory = artifacts.require('LongVaultFactory');
+// const LongVault = artifacts.require('LongVault');
 
-module.exports = async function (deployer) {
-  const testBeneficiary = '0xA8EFb4035bC59ff31DFa72e04344454C2146aC10';
-  await deployer.deploy(LongVault, testBeneficiary);
+module.exports = async function (deployer, network, accounts) {
+  // const admin = accounts[0];
+  const beneficiary = accounts[1];
+  await deployer.deploy(LongVaultFactory, beneficiary);
 };
