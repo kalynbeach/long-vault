@@ -4,57 +4,73 @@ pragma solidity ^0.8.6;
 import "./LongVault.sol";
 import "@openzeppelin/contracts/proxy/Clones.sol";
 
-
 /**
     LongVaultFactory: LongVault Clone factory
 */
 
+/// TODO: Make sure longVaultImplementation (address) is set/handled correctly
+/// TODO: Make sure salt for cloneDeterministic() is created correctly
 
 contract LongVaultFactory {
     using Address for address payable;
 
     event LongVaultCreated(
-        address cloneAddress,
         address payable admin,
         address payable beneficiary,
+        address cloneAddress,
         uint timestamp
     );
 
     struct LongVaultsEntry {
         address admin;
-        address longVaultAddress;
+        address beneficiary;
+        address cloneAddress;
+        uint timestamp;
     }
 
-    LongVaultsEntry[] public allLongVaults;
-    
     address immutable longVaultImplementation;
     address payable implementationBeneficiary;
 
-    constructor(address payable beneficiary_) {
+    LongVaultsEntry[] public allLongVaults;
+
+    constructor() {
         longVaultImplementation = address(new LongVault());
-        implementationBeneficiary = beneficiary_;
+        implementationBeneficiary = payable(msg.sender);
     }
 
     function createLongVault(
-        address payable admin_,
-        address payable beneficiary_
-    ) external returns (address payable) {
-        bytes32 salt = keccak256(abi.encodePacked(admin_));
-        address clone = Clones.cloneDeterministic(
+        address payable beneficiary_,
+        bytes20 salt_
+    )
+        external
+        returns (address payable longVaultClone)
+    {
+        address payable admin = payable(msg.sender);
+        bytes32 salt = keccak256(abi.encodePacked(salt_, admin, beneficiary_));
+        // address clone = Clones.cloneDeterministic(
+        //     longVaultImplementation,
+        //     salt
+        // );
+        // address payable cloneAddress = payable(clone);
+        longVaultClone = payable(Clones.cloneDeterministic(
             longVaultImplementation,
             salt
-        );
-        /// TODO: Read up on (payable) Clones, make sure this is the move
-        address payable payableClone = payable(clone);
-        LongVault(payableClone).initialize(admin_, beneficiary_);
+        ));
+        LongVault(longVaultClone).initialize(admin, beneficiary_);
+        uint createdTimestamp = block.timestamp;
+        allLongVaults.push(LongVaultsEntry({
+            admin: admin,
+            beneficiary: beneficiary_,
+            cloneAddress: longVaultClone,
+            timestamp: createdTimestamp
+        }));
         emit LongVaultCreated(
-            payableClone,
-            admin_,
+            admin,
             beneficiary_,
-            block.timestamp
+            longVaultClone,
+            createdTimestamp
         );
-        allLongVaults.push(LongVaultsEntry(admin_, payableClone));
-        return payableClone;
+        return longVaultClone;
     }
 
     function getAllLongVaults() external view returns (LongVaultsEntry[] memory) {

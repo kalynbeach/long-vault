@@ -6,92 +6,6 @@
 	"output": {
 		"abi": [
 			{
-				"inputs": [
-					{
-						"internalType": "address payable",
-						"name": "beneficiary_",
-						"type": "address"
-					}
-				],
-				"stateMutability": "nonpayable",
-				"type": "constructor"
-			},
-			{
-				"anonymous": false,
-				"inputs": [
-					{
-						"indexed": false,
-						"internalType": "contract IERC20",
-						"name": "token",
-						"type": "address"
-					},
-					{
-						"indexed": false,
-						"internalType": "uint256",
-						"name": "amount",
-						"type": "uint256"
-					},
-					{
-						"indexed": false,
-						"internalType": "uint256",
-						"name": "timestamp",
-						"type": "uint256"
-					}
-				],
-				"name": "ERC20Deposited",
-				"type": "event"
-			},
-			{
-				"anonymous": false,
-				"inputs": [
-					{
-						"indexed": false,
-						"internalType": "contract IERC20",
-						"name": "token",
-						"type": "address"
-					},
-					{
-						"indexed": false,
-						"internalType": "uint256",
-						"name": "amount",
-						"type": "uint256"
-					},
-					{
-						"indexed": false,
-						"internalType": "uint256",
-						"name": "releaseTime",
-						"type": "uint256"
-					}
-				],
-				"name": "ERC20ReleaseCreated",
-				"type": "event"
-			},
-			{
-				"anonymous": false,
-				"inputs": [
-					{
-						"indexed": false,
-						"internalType": "contract IERC20",
-						"name": "token",
-						"type": "address"
-					},
-					{
-						"indexed": false,
-						"internalType": "uint256",
-						"name": "amount",
-						"type": "uint256"
-					},
-					{
-						"indexed": false,
-						"internalType": "uint256",
-						"name": "releaseTime",
-						"type": "uint256"
-					}
-				],
-				"name": "ERC20Released",
-				"type": "event"
-			},
-			{
 				"anonymous": false,
 				"inputs": [
 					{
@@ -224,21 +138,83 @@
 				"type": "event"
 			},
 			{
-				"stateMutability": "payable",
-				"type": "fallback"
-			},
-			{
-				"inputs": [],
-				"name": "ADMIN_ROLE",
-				"outputs": [
+				"anonymous": false,
+				"inputs": [
 					{
-						"internalType": "bytes32",
-						"name": "",
-						"type": "bytes32"
+						"indexed": false,
+						"internalType": "address",
+						"name": "token",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "timestamp",
+						"type": "uint256"
 					}
 				],
-				"stateMutability": "view",
-				"type": "function"
+				"name": "TokenDeposited",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "token",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "releaseTime",
+						"type": "uint256"
+					}
+				],
+				"name": "TokenReleaseCreated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "address",
+						"name": "token",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "releaseTime",
+						"type": "uint256"
+					}
+				],
+				"name": "TokenReleased",
+				"type": "event"
+			},
+			{
+				"stateMutability": "payable",
+				"type": "fallback"
 			},
 			{
 				"inputs": [],
@@ -271,7 +247,7 @@
 				"name": "admin",
 				"outputs": [
 					{
-						"internalType": "address",
+						"internalType": "address payable",
 						"name": "",
 						"type": "address"
 					}
@@ -295,7 +271,35 @@
 			{
 				"inputs": [
 					{
-						"internalType": "contract IERC20",
+						"internalType": "uint256",
+						"name": "amount_",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "releaseTime_",
+						"type": "uint256"
+					},
+					{
+						"internalType": "bool",
+						"name": "repeated_",
+						"type": "bool"
+					},
+					{
+						"internalType": "uint256",
+						"name": "frequency_",
+						"type": "uint256"
+					}
+				],
+				"name": "createEtherRelease",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
 						"name": "token_",
 						"type": "address"
 					},
@@ -308,27 +312,19 @@
 						"internalType": "uint256",
 						"name": "releaseTime_",
 						"type": "uint256"
-					}
-				],
-				"name": "createERC20Release",
-				"outputs": [],
-				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [
+					},
 					{
-						"internalType": "uint256",
-						"name": "amount_",
-						"type": "uint256"
+						"internalType": "bool",
+						"name": "repeated_",
+						"type": "bool"
 					},
 					{
 						"internalType": "uint256",
-						"name": "releaseTime_",
+						"name": "frequency_",
 						"type": "uint256"
 					}
 				],
-				"name": "createEtherRelease",
+				"name": "createTokenRelease",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -356,7 +352,7 @@
 			{
 				"inputs": [
 					{
-						"internalType": "contract IERC20",
+						"internalType": "address",
 						"name": "token_",
 						"type": "address"
 					},
@@ -366,50 +362,19 @@
 						"type": "uint256"
 					}
 				],
-				"name": "depositERC20",
+				"name": "depositToken",
 				"outputs": [],
 				"stateMutability": "payable",
 				"type": "function"
 			},
 			{
-				"inputs": [
+				"inputs": [],
+				"name": "etherReleaseCount",
+				"outputs": [
 					{
 						"internalType": "uint256",
 						"name": "",
 						"type": "uint256"
-					}
-				],
-				"name": "erc20Releases",
-				"outputs": [
-					{
-						"internalType": "uint256",
-						"name": "id",
-						"type": "uint256"
-					},
-					{
-						"internalType": "contract IERC20",
-						"name": "token",
-						"type": "address"
-					},
-					{
-						"internalType": "uint256",
-						"name": "amount",
-						"type": "uint256"
-					},
-					{
-						"internalType": "uint256",
-						"name": "releaseTime",
-						"type": "uint256"
-					},
-					{
-						"internalType": "bool",
-						"name": "released",
-						"type": "bool"
-					},
-					{
-						"internalType": "bool",
-						"name": "repeatedAnnually",
-						"type": "bool"
 					}
 				],
 				"stateMutability": "view",
@@ -437,6 +402,11 @@
 					},
 					{
 						"internalType": "uint256",
+						"name": "createdTime",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
 						"name": "releaseTime",
 						"type": "uint256"
 					},
@@ -447,72 +417,13 @@
 					},
 					{
 						"internalType": "bool",
-						"name": "repeatedAnnually",
+						"name": "repeated",
 						"type": "bool"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "contract IERC20",
-						"name": "token_",
-						"type": "address"
-					}
-				],
-				"name": "getERC20Balance",
-				"outputs": [
+					},
 					{
 						"internalType": "uint256",
-						"name": "",
+						"name": "frequency",
 						"type": "uint256"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "getERC20Releases",
-				"outputs": [
-					{
-						"components": [
-							{
-								"internalType": "uint256",
-								"name": "id",
-								"type": "uint256"
-							},
-							{
-								"internalType": "contract IERC20",
-								"name": "token",
-								"type": "address"
-							},
-							{
-								"internalType": "uint256",
-								"name": "amount",
-								"type": "uint256"
-							},
-							{
-								"internalType": "uint256",
-								"name": "releaseTime",
-								"type": "uint256"
-							},
-							{
-								"internalType": "bool",
-								"name": "released",
-								"type": "bool"
-							},
-							{
-								"internalType": "bool",
-								"name": "repeatedAnnually",
-								"type": "bool"
-							}
-						],
-						"internalType": "struct LongVault.ERC20Release[]",
-						"name": "",
-						"type": "tuple[]"
 					}
 				],
 				"stateMutability": "view",
@@ -549,6 +460,11 @@
 							},
 							{
 								"internalType": "uint256",
+								"name": "createdTime",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
 								"name": "releaseTime",
 								"type": "uint256"
 							},
@@ -559,8 +475,13 @@
 							},
 							{
 								"internalType": "bool",
-								"name": "repeatedAnnually",
+								"name": "repeated",
 								"type": "bool"
+							},
+							{
+								"internalType": "uint256",
+								"name": "frequency",
+								"type": "uint256"
 							}
 						],
 						"internalType": "struct LongVault.EtherRelease[]",
@@ -585,6 +506,80 @@
 						"internalType": "bytes32",
 						"name": "",
 						"type": "bytes32"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "token_",
+						"type": "address"
+					}
+				],
+				"name": "getTokenBalance",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getTokenReleases",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "address",
+								"name": "token",
+								"type": "address"
+							},
+							{
+								"internalType": "uint256",
+								"name": "id",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "amount",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "createdTime",
+								"type": "uint256"
+							},
+							{
+								"internalType": "uint256",
+								"name": "releaseTime",
+								"type": "uint256"
+							},
+							{
+								"internalType": "bool",
+								"name": "released",
+								"type": "bool"
+							},
+							{
+								"internalType": "bool",
+								"name": "repeated",
+								"type": "bool"
+							},
+							{
+								"internalType": "uint256",
+								"name": "frequency",
+								"type": "uint256"
+							}
+						],
+						"internalType": "struct LongVault.TokenRelease[]",
+						"name": "",
+						"type": "tuple[]"
 					}
 				],
 				"stateMutability": "view",
@@ -633,6 +628,63 @@
 				"type": "function"
 			},
 			{
+				"inputs": [
+					{
+						"internalType": "address payable",
+						"name": "admin_",
+						"type": "address"
+					},
+					{
+						"internalType": "address payable",
+						"name": "beneficiary_",
+						"type": "address"
+					}
+				],
+				"name": "initialize",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "lastDepositAmount",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "lastDepositDate",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "lastDepositToken",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
 				"inputs": [],
 				"name": "nextRelease",
 				"outputs": [
@@ -648,7 +700,20 @@
 			{
 				"inputs": [
 					{
-						"internalType": "contract IERC20",
+						"internalType": "uint256",
+						"name": "amount_",
+						"type": "uint256"
+					}
+				],
+				"name": "releaseEther",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
 						"name": "token_",
 						"type": "address"
 					},
@@ -658,20 +723,7 @@
 						"type": "uint256"
 					}
 				],
-				"name": "releaseERC20",
-				"outputs": [],
-				"stateMutability": "nonpayable",
-				"type": "function"
-			},
-			{
-				"inputs": [
-					{
-						"internalType": "uint256",
-						"name": "amount_",
-						"type": "uint256"
-					}
-				],
-				"name": "releaseEther",
+				"name": "releaseToken",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -734,16 +786,83 @@
 			{
 				"inputs": [
 					{
+						"internalType": "address",
+						"name": "token_",
+						"type": "address"
+					}
+				],
+				"name": "token",
+				"outputs": [
+					{
 						"internalType": "contract IERC20",
 						"name": "",
 						"type": "address"
 					}
 				],
-				"name": "tokens",
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "tokenReleaseCount",
 				"outputs": [
 					{
 						"internalType": "uint256",
 						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "tokenReleases",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "token",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "createdTime",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "releaseTime",
+						"type": "uint256"
+					},
+					{
+						"internalType": "bool",
+						"name": "released",
+						"type": "bool"
+					},
+					{
+						"internalType": "bool",
+						"name": "repeated",
+						"type": "bool"
+					},
+					{
+						"internalType": "uint256",
+						"name": "frequency",
 						"type": "uint256"
 					}
 				],
@@ -771,24 +890,30 @@
 		"devdoc": {
 			"kind": "dev",
 			"methods": {
+				"createEtherRelease(uint256,uint256,bool,uint256)": {
+					"details": "Create and add a new ether Release.",
+					"params": {
+						"amount_": "The amount of Ether to be released.",
+						"releaseTime_": "The future unix timestamp of when the release will occur."
+					}
+				},
+				"createTokenRelease(address,uint256,uint256,bool,uint256)": {
+					"details": "Create and add a new TokenRelease",
+					"params": {
+						"amount_": "The amount of the token to be released.",
+						"releaseTime_": "The future unix timestamp of when the release will occur.",
+						"token_": "The address of the token to release."
+					}
+				},
 				"deposit()": {
 					"details": "Called when msg.data is not empty"
 				},
-				"depositERC20(address,uint256)": {
+				"depositToken(address,uint256)": {
 					"details": "Called when msg.data is not empty",
 					"params": {
-						"amount_": "The amount of the ERC20 token to be deposited.",
-						"token_": "The address of the ERC20 token to deposit."
+						"amount_": "The amount of the token to be deposited.",
+						"token_": "The address of the token to deposit."
 					}
-				},
-				"getERC20Balance(address)": {
-					"details": "Get ERC20 token balances",
-					"params": {
-						"token_": "The address of the ERC20 token to get the balance of."
-					}
-				},
-				"getERC20Releases()": {
-					"details": "Get ERC20 token releases"
 				},
 				"getEtherBalance()": {
 					"details": "Get Ether balance"
@@ -799,47 +924,58 @@
 				"getRoleAdmin(bytes32)": {
 					"details": "Returns the admin role that controls `role`. See {grantRole} and {revokeRole}. To change a role's admin, use {_setRoleAdmin}."
 				},
+				"getTokenBalance(address)": {
+					"details": "Get token balances",
+					"params": {
+						"token_": "The address of the token to get the balance of."
+					}
+				},
+				"getTokenReleases()": {
+					"details": "Get token releases"
+				},
 				"grantRole(bytes32,address)": {
 					"details": "Grants `role` to `account`. If `account` had not been already granted `role`, emits a {RoleGranted} event. Requirements: - the caller must have ``role``'s admin role."
 				},
 				"hasRole(bytes32,address)": {
 					"details": "Returns `true` if `account` has been granted `role`."
 				},
-				"releaseERC20(address,uint256)": {
-					"details": "Release ERC20 tokens to beneficiary.",
-					"params": {
-						"amount_": "The amount of the token to release.",
-						"token_": "The ERC20 token to release."
-					}
-				},
 				"releaseEther(uint256)": {
-					"details": "Release ether to beneficiary.",
+					"details": "Release ether to the beneficiary.",
 					"params": {
 						"amount_": "The amount of ether to release."
 					}
 				},
+				"releaseToken(address,uint256)": {
+					"details": "Release tokens to the beneficiary.",
+					"params": {
+						"amount_": "The amount of the token to release.",
+						"token_": "The token to release."
+					}
+				},
 				"renounceRole(bytes32,address)": {
-					"details": "Revokes `role` from the calling account. Roles are often managed via {grantRole} and {revokeRole}: this function's purpose is to provide a mechanism for accounts to lose their privileges if they are compromised (such as when a trusted device is misplaced). If the calling account had been granted `role`, emits a {RoleRevoked} event. Requirements: - the caller must be `account`."
+					"details": "Revokes `role` from the calling account. Roles are often managed via {grantRole} and {revokeRole}: this function's purpose is to provide a mechanism for accounts to lose their privileges if they are compromised (such as when a trusted device is misplaced). If the calling account had been revoked `role`, emits a {RoleRevoked} event. Requirements: - the caller must be `account`."
 				},
 				"revokeRole(bytes32,address)": {
 					"details": "Revokes `role` from `account`. If `account` had been granted `role`, emits a {RoleRevoked} event. Requirements: - the caller must have ``role``'s admin role."
 				},
 				"supportsInterface(bytes4)": {
 					"details": "See {IERC165-supportsInterface}."
+				},
+				"token(address)": {
+					"params": {
+						"token_": "The address of the ERC20 token contract."
+					},
+					"returns": {
+						"_0": "the ERC20 token being held."
+					}
 				}
 			},
 			"version": 1
 		},
 		"userdoc": {
 			"kind": "user",
-			"methods": {
-				"createERC20Release(address,uint256,uint256)": {
-					"notice": "TODO: Add and build support for repeatedAnnually bool param"
-				},
-				"createEtherRelease(uint256,uint256)": {
-					"notice": "TODO: Add and build support for repeatedAnnually bool param"
-				}
-			},
+			"methods": {},
+			"notice": "> LongVault operation & maintainence  - TODO: Create release() calling mechanism -- Needs to check current datetime against Release struct/object timestamps",
 			"version": 1
 		}
 	},
@@ -860,75 +996,91 @@
 	},
 	"sources": {
 		"@openzeppelin/contracts/access/AccessControl.sol": {
-			"keccak256": "0x183481af1c40d2efb26b86f63d6fe9e22f24c87e436d60a69f261b38500e7cd6",
+			"keccak256": "0xb9a137b317dc4806805f2259686186c0c053c32d80fe9c15ecdbf2eb1cf52849",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://f562746c399ae045994a88b2218d1238a349de07afbfb305aab0c7fdbc2954cc",
-				"dweb:/ipfs/QmYoFrDD2c6fi9CpPz1bjCMAyketjZ3G7ByUSVQMntysms"
+				"bzz-raw://8910762bea89696c6dc68a63be98c6ddd597955f8a29418661cc99d0ce090663",
+				"dweb:/ipfs/Qmed14MXXFdNYE22bCuVy5XVAMKUo1DncY8BF8VkyrvXmh"
 			]
 		},
 		"@openzeppelin/contracts/access/IAccessControl.sol": {
-			"keccak256": "0xfe0edb09653ed10e8a1bfe03eb9b0ff06775666eee817a95bd3d0799f1ee2b44",
+			"keccak256": "0x59ce320a585d7e1f163cd70390a0ef2ff9cec832e2aa544293a00692465a7a57",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://fbb9d503857eab98f87465df0f02fef03083f30c1dbec82f319f41aaadae19b4",
-				"dweb:/ipfs/QmTxDshRAMtoeM45YrTzQZdpmy4mt4scCNHjfZiWSvdETF"
+				"bzz-raw://bb2c137c343ef0c4c7ce7b18c1d108afdc9d315a04e48307288d2d05adcbde3a",
+				"dweb:/ipfs/QmUxhrAQM3MM3FF5j7AtcXLXguWCJBHJ14BRdVtuoQc8Fh"
+			]
+		},
+		"@openzeppelin/contracts/proxy/utils/Initializable.sol": {
+			"keccak256": "0x94dd781aa290742d990ccb720b3cab52a3865d1ba004e35c1dc757aa3ee788e0",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://1d762e5eb6f74a6228a744b0261fb2dda4e2c8a214206ca67a443c06feb16ce2",
+				"dweb:/ipfs/QmU85d56LUBCQ5j24hVf3WJ2uwjNoyLJr8ZYyDXWKmJGpU"
 			]
 		},
 		"@openzeppelin/contracts/token/ERC20/IERC20.sol": {
-			"keccak256": "0x027b891937d20ccf213fdb9c31531574256de774bda99d3a70ecef6e1913ed2a",
+			"keccak256": "0x61437cb513a887a1bbad006e7b1c8b414478427d33de47c5600af3c748f108da",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://087318b21c528119f649899f5b5580566dd8d7b0303d4904bd0e8580c3545f14",
-				"dweb:/ipfs/Qmbn5Mj7aUn8hJuQ8VrQjjEXRsXyJKykgnjR9p4C3nfLtL"
+				"bzz-raw://2c3d0973630ed74f2b5ce3944677a885dc70ec32fc83b35f55045a10224da32b",
+				"dweb:/ipfs/QmbefZ5RoEZKNHXCALfh683PnaNYzKPcKMFjyY1DVAgq8A"
+			]
+		},
+		"@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol": {
+			"keccak256": "0xc3d946432c0ddbb1f846a0d3985be71299df331b91d06732152117f62f0be2b5",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://4632c341a06ba5c079b51ca5a915efab4e6ab57735b37839b3e8365ff806a43e",
+				"dweb:/ipfs/QmTHT3xHYed2wajEoA5qu7ii2BxLpPhQZHwAhtLK5Z7ANK"
 			]
 		},
 		"@openzeppelin/contracts/utils/Address.sol": {
-			"keccak256": "0x3336baae5cf23e94274d75336e2d412193be508504aee185e61dc7d58cd05c8a",
+			"keccak256": "0x51b758a8815ecc9596c66c37d56b1d33883a444631a3f916b9fe65cb863ef7c4",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://39a05eec7083dfa0cc7e0cbfe6cd1bd085a340af1ede93fdff3ad047c5fb3d8e",
-				"dweb:/ipfs/QmVApz5fCUq2QC8gKTsNNdCmcedJ3ETHp68zR5N3WUKS4r"
+				"bzz-raw://997ca03557985b3c6f9143a18b6c3a710b3bc1c7f189ee956d305a966ecfb922",
+				"dweb:/ipfs/QmQaD3Wb62F88SHqmpLttvF6wKuPDQep2LLUcKPekeRzvz"
 			]
 		},
 		"@openzeppelin/contracts/utils/Context.sol": {
-			"keccak256": "0x90565a39ae45c80f0468dc96c7b20d0afc3055f344c8203a0c9258239f350b9f",
+			"keccak256": "0xe2e337e6dde9ef6b680e07338c493ebea1b5fd09b43424112868e9cc1706bca7",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://26e8b38a7ac8e7b4463af00cf7fff1bf48ae9875765bf4f7751e100124d0bc8c",
-				"dweb:/ipfs/QmWcsmkVr24xmmjfnBQZoemFniXjj3vwT78Cz6uqZW1Hux"
+				"bzz-raw://6df0ddf21ce9f58271bdfaa85cde98b200ef242a05a3f85c2bc10a8294800a92",
+				"dweb:/ipfs/QmRK2Y5Yc6BK7tGKkgsgn3aJEQGi5aakeSPZvS65PV8Xp3"
 			]
 		},
 		"@openzeppelin/contracts/utils/Strings.sol": {
-			"keccak256": "0x391d3ba97ab6856a16b225d6ee29617ad15ff00db70f3b4df1ab5ea33aa47c9d",
+			"keccak256": "0x32c202bd28995dd20c4347b7c6467a6d3241c74c8ad3edcbb610cd9205916c45",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://d636ba90bbbeed04a1ea7fe9ec2466757e30fd38ba2ca173636dbf69a518735e",
-				"dweb:/ipfs/QmQwCB2BHnEuYR22PYt9HkpbgeFDhq4rHmaYqAZbX3WRC7"
+				"bzz-raw://8179c356adb19e70d6b31a1eedc8c5c7f0c00e669e2540f4099e3844c6074d30",
+				"dweb:/ipfs/QmWFbivarEobbqhS1go64ootVuHfVohBseerYy9FTEd1W2"
 			]
 		},
 		"@openzeppelin/contracts/utils/introspection/ERC165.sol": {
-			"keccak256": "0x5718c5df9bd67ac68a796961df938821bb5dc0cd4c6118d77e9145afb187409b",
+			"keccak256": "0xd10975de010d89fd1c78dc5e8a9a7e7f496198085c151648f20cba166b32582b",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://d10e1d9b26042424789246603906ad06143bf9a928f4e99de8b5e3bdc662f549",
-				"dweb:/ipfs/Qmejonoaj5MLekPus229rJQHcC6E9dz2xorjHJR84fMfmn"
+				"bzz-raw://fb0048dee081f6fffa5f74afc3fb328483c2a30504e94a0ddd2a5114d731ec4d",
+				"dweb:/ipfs/QmZptt1nmYoA5SgjwnSgWqgUSDgm4q52Yos3xhnMv3MV43"
 			]
 		},
 		"@openzeppelin/contracts/utils/introspection/IERC165.sol": {
-			"keccak256": "0xa28007762d9da9db878dd421960c8cb9a10471f47ab5c1b3309bfe48e9e79ff4",
+			"keccak256": "0x447a5f3ddc18419d41ff92b3773fb86471b1db25773e07f877f548918a185bf1",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://796ab6e88af7bf0e78def0f059310c903af6a312b565344e0ff524a0f26e81c6",
-				"dweb:/ipfs/QmcsVgLgzWdor3UnAztUkXKNGcysm1MPneWksF72AvnwBx"
+				"bzz-raw://be161e54f24e5c6fae81a12db1a8ae87bc5ae1b0ddc805d82a1440a68455088f",
+				"dweb:/ipfs/QmP7C3CHdY9urF4dEMb9wmsp1wMxHF6nhA2yQE5SKiPAdy"
 			]
 		},
 		"contracts/LongVault.sol": {
-			"keccak256": "0xce611d71be61af621a408f376b26ddc3a0b43809c4138df8122ea9a0e5809b08",
+			"keccak256": "0xe30556cf63d71c7fc6c2c92e23ddf808354b6a0866fb85bc87737ddbf36b8253",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://f04efb1d69084ca23f5a8b3cf1cac7f5bc3e014dbb8215a26a78c18897478b36",
-				"dweb:/ipfs/QmemanRWGZbkvcEcSq55rJoFs63rufa4mcgZfgvDnrqWgv"
+				"bzz-raw://8b344110e3066e0d4008c6171c3c76b07424fdb7ee29e8d5bd2537e7c8135839",
+				"dweb:/ipfs/QmRYF7Z5XGXmCbrEcLHPmuzEqrnfauRSiQNayCviJppgGh"
 			]
 		}
 	},

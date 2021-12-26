@@ -1,8 +1,12 @@
 const { accounts, contract } = require('@openzeppelin/test-environment');
 const { balance, BN, ether, expectEvent } = require('@openzeppelin/test-helpers');
+const { ethers } = require('ethers');
 const { expect } = require('chai');
 require('chai').should();
 
+const LongVault = contract.fromArtifact('LongVault');
+const LongVaultFactory = contract.fromArtifact('LongVaultFactory');
+const LVTT = contract.fromArtifact('LongVaultTestToken');
 
 const VAULT_RELEASE_TIME = new BN(1723326570); // 08-10-2024
 const ETHER_VAULT_AMOUNT = ether('10');
@@ -12,18 +16,18 @@ const TOKEN_ALLOWANCE_AMOUNT = new BN(50);
 const TOKEN_RELEASE_AMOUNT = new BN(3);
 // const TOKEN_VAULT_TOKEN = '0x514910771AF9Ca656af840dff83E8264EcF986CA'; // LINK
 
-const LongVaultFactory = contract.fromArtifact('LongVaultFactory');
-const LongVault = contract.fromArtifact('LongVault');
-const LVTT = contract.fromArtifact('LongVaultTestToken');
-
-
 //
 // LongVault creation via LongVaultFactory
 //
 async function createTestLongVault(admin, beneficiary) {
-  const factory = await LongVaultFactory.new(beneficiary, { from: admin, gas: 8000000 });
-  const vaultReceipt = await factory.createLongVault(admin, beneficiary);
-  const vaultAddress = vaultReceipt.logs[0].args.cloneAddress;
+  const factory = await LongVaultFactory.new({ from: admin, gas: 8000000 });
+  const salt = ethers.utils.randomBytes(20);
+  const vaultReceipt = await factory.createLongVault(
+    beneficiary,
+    salt,
+    { from: admin, gas: 8000000 }
+  );
+  const vaultAddress = vaultReceipt.logs[0].args.longVaultClone;
   const vault = await LongVault.at(vaultAddress);
   return vault;
 }

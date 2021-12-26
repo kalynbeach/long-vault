@@ -6,18 +6,13 @@ import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-
 /**
     LongVault
 */
 
-/// > LongVault setup
-/// - TODO: Figure out of fallback() is necessary
-
 /// > LongVault operation & maintainence 
 /// - TODO: Create release() calling mechanism
 /// -- Needs to check current datetime against Release struct/object timestamps
-
 
 contract LongVault is AccessControl, Initializable {
     using Address for address payable;
@@ -59,14 +54,14 @@ contract LongVault is AccessControl, Initializable {
     address payable public admin;
     address payable public beneficiary;
     
-    uint public createdAt;
-    uint public totalReleaseCount;
-    uint public nextRelease;
+    uint public createdTimestamp;
+    // uint public totalReleaseCount;
+    // uint public nextRelease;
     uint public etherReleaseCount;
     uint public tokenReleaseCount;
-    uint public lastDepositDate;
-    uint public lastDepositAmount;
-    address public lastDepositToken;
+    // uint public lastDepositDate;
+    // uint public lastDepositAmount;
+    // address public lastDepositToken;
 
     function initialize(
         address payable admin_,
@@ -76,7 +71,7 @@ contract LongVault is AccessControl, Initializable {
         _setupRole(BENEFICIARY_ROLE, beneficiary_);
         admin = admin_;
         beneficiary = beneficiary_;
-        createdAt = block.timestamp;
+        createdTimestamp = block.timestamp;
     }
 
     /**
@@ -152,7 +147,7 @@ contract LongVault is AccessControl, Initializable {
             frequency: frequency_
         }));
         etherReleaseCount++;
-        totalReleaseCount++;
+        // totalReleaseCount++;
         emit EtherReleaseCreated(amount_, releaseTime_);
     }
 
@@ -181,7 +176,7 @@ contract LongVault is AccessControl, Initializable {
             frequency: frequency_
         }));
         tokenReleaseCount++;
-        totalReleaseCount++;
+        // totalReleaseCount++;
         emit TokenReleaseCreated(token_, amount_, releaseTime_);
     }
 

@@ -2,7 +2,7 @@
   "name": "long-vault",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "./scripts/index.js",
   "scripts": {
     "compile:test": "truffle compile && mocha --exit --recursive",
     "test": "mocha --exit --recursive"
@@ -18,5 +18,8 @@
     "ganache-cli": "^6.12.2",
     "mocha": "^9.1.1",
     "truffle": "^5.4.5"
+  },
+  "dependencies": {
+    "ethers": "^5.5.2"
   }
 }
