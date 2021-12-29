@@ -33,8 +33,9 @@ contract LongVaultFactory {
 
     LongVaultsEntry[] public allLongVaults;
 
-    constructor() {
-        longVaultImplementation = address(new LongVault());
+    constructor(address implementation_) {
+        /// longVaultImplementation = address(new LongVault());
+        longVaultImplementation = implementation_;
         implementationBeneficiary = payable(msg.sender);
     }
 

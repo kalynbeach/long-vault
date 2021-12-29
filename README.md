@@ -8,20 +8,17 @@ LongVault React App Frontend: [long-vault](https://github.com/kalynbeach/long-va
 
 ## Local Development
 
-* Start local blockchain using truffle develop:
-  * `npx truffle develop`
-* Deploy contracts via truffle migrations:
-  * `npx truffle migrate`
+Install dependencies:
 
-
-## TODOs
-
-### Migration from Truffle to Hardhat
-* Create & switch to `hardhat` branch
-* Read hardhat's [Getting Started](https://hardhat.org/getting-started/) guide
-* Follow hardhat's [Migrating from Truffle](https://hardhat.org/guides/truffle-migration.html) guide
-* Update tests as needed
-
-### Fix `LongVaultFactory` create2 revert
-* Once migrated to hardhat, reference OpenZeppelin Clones workshop contracts to fix `LongVaultFactory` use of `Clones.cloneDeterministic()`
+```
+npm install
+```
+Start local Hardhat network:
+```
+npx hardhart node
+```
+Deploy contracts to local network (in a new terminal, in the root directory):
+```
+npx hardhat run scripts/deploy.js --network localhost
+```
 
