@@ -55,13 +55,8 @@ contract LongVault is AccessControl, Initializable {
     address payable public beneficiary;
     
     uint public createdTimestamp;
-    // uint public totalReleaseCount;
-    // uint public nextRelease;
     uint public etherReleaseCount;
     uint public tokenReleaseCount;
-    // uint public lastDepositDate;
-    // uint public lastDepositAmount;
-    // address public lastDepositToken;
 
     function initialize(
         address payable admin_,
@@ -147,7 +142,6 @@ contract LongVault is AccessControl, Initializable {
             frequency: frequency_
         }));
         etherReleaseCount++;
-        // totalReleaseCount++;
         emit EtherReleaseCreated(amount_, releaseTime_);
     }
 
@@ -176,7 +170,6 @@ contract LongVault is AccessControl, Initializable {
             frequency: frequency_
         }));
         tokenReleaseCount++;
-        // totalReleaseCount++;
         emit TokenReleaseCreated(token_, amount_, releaseTime_);
     }
 
@@ -202,7 +195,9 @@ contract LongVault is AccessControl, Initializable {
     function releaseToken(address token_, uint amount_) public onlyRole(DEFAULT_ADMIN_ROLE) {
         IERC20 _token = token(token_);
         uint tokenBalance = _token.balanceOf(address(this));
+
         /// TODO: Check for calling address approval
+
         require(
             tokenBalance >= amount_,
             "LongVault: token release amount is greater than token balance"

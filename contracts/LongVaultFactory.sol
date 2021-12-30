@@ -8,9 +8,6 @@ import "@openzeppelin/contracts/proxy/Clones.sol";
     LongVaultFactory: LongVault Clone factory
 */
 
-/// TODO: Make sure longVaultImplementation (address) is set/handled correctly
-/// TODO: Make sure salt for cloneDeterministic() is created correctly
-
 contract LongVaultFactory {
     using Address for address payable;
 
@@ -28,13 +25,12 @@ contract LongVaultFactory {
         uint timestamp;
     }
 
-    address immutable longVaultImplementation;
+    address longVaultImplementation;
     address payable implementationBeneficiary;
 
     LongVaultsEntry[] public allLongVaults;
 
     constructor(address implementation_) {
-        /// longVaultImplementation = address(new LongVault());
         longVaultImplementation = implementation_;
         implementationBeneficiary = payable(msg.sender);
     }
@@ -48,11 +44,6 @@ contract LongVaultFactory {
     {
         address payable admin = payable(msg.sender);
         bytes32 salt = keccak256(abi.encodePacked(salt_, admin, beneficiary_));
-        // address clone = Clones.cloneDeterministic(
-        //     longVaultImplementation,
-        //     salt
-        // );
-        // address payable cloneAddress = payable(clone);
         longVaultClone = payable(Clones.cloneDeterministic(
             longVaultImplementation,
             salt

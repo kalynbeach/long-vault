@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/Users/kalynbeach/Code/Ethereum/LongVault/long-vault-contracts/contracts/LongVault.sol": {
-      "lastModificationDate": 1640555088715,
-      "contentHash": "12f731b578e9497ae1531f614021d83e",
+      "lastModificationDate": 1640839599690,
+      "contentHash": "248b8252af6c3d6c05f70ecd742a76d6",
       "sourceName": "contracts/LongVault.sol",
       "solcConfig": {
         "version": "0.8.6",
@@ -404,8 +404,8 @@
       ]
     },
     "/Users/kalynbeach/Code/Ethereum/LongVault/long-vault-contracts/contracts/LongVaultFactory.sol": {
-      "lastModificationDate": 1640728348013,
-      "contentHash": "5b6d930bc0f55439b572d23e50a337d5",
+      "lastModificationDate": 1640839821489,
+      "contentHash": "51492f257f01edd1a974b069f74ba2ac",
       "sourceName": "contracts/LongVaultFactory.sol",
       "solcConfig": {
         "version": "0.8.6",
@@ -817,41 +817,6 @@
       ],
       "artifacts": [
         "IERC20Metadata"
-      ]
-    },
-    "/Users/kalynbeach/Code/Ethereum/LongVault/long-vault-contracts/contracts/Migrations.sol": {
-      "lastModificationDate": 1639696131609,
-      "contentHash": "50b3b1dc92806dc8f604fc8c5c65518f",
-      "sourceName": "contracts/Migrations.sol",
-      "solcConfig": {
-        "version": "0.8.6",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        ">=0.4.22 <0.9.0"
-      ],
-      "artifacts": [
-        "Migrations"
       ]
     }
   }

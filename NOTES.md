@@ -1,12 +1,11 @@
 # TODOs
 
 ## Migration from Truffle to Hardhat
-* Create & switch to `hardhat` branch
-* Read hardhat's [Getting Started](https://hardhat.org/getting-started/) guide
 * Follow hardhat's [Migrating from Truffle](https://hardhat.org/guides/truffle-migration.html) guide
 * Update tests as needed
   * https://ethereum.stackexchange.com/questions/90832/following-the-hardhat-tutorial-i-get-this-error-typeerror-ethers-getsigners-i
-* Update deployment (migration) scripts
+* Update deployment (migration) script
+* Test locally with `long-vault` frontend
 
 ## Fix `LongVaultFactory` create2 revert error
 * Once migrated to hardhat, reference OpenZeppelin Clones workshop contracts to fix `LongVaultFactory` use of `Clones.cloneDeterministic()`
