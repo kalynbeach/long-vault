@@ -5,7 +5,8 @@
 
 
 // Path to frontend contract artifacts directory
-const FRONTEND_CONTRACTS_DIR = __dirname + "/../../long-vault/src/build"; 
+// const FRONTEND_CONTRACTS_DIR = __dirname + "/../../long-vault/src/contracts";
+const FRONTEND_CONTRACTS_DIR = __dirname + "/../../../../DApps/long-vault-frontend/src/contracts";
 
 
 async function deploy(name, ...params) {
@@ -15,7 +16,6 @@ async function deploy(name, ...params) {
 
 
 async function main() {
-
   const [deployer] = await ethers.getSigners();
   const deployerAddress = await deployer.getAddress();
 
@@ -24,12 +24,12 @@ async function main() {
   
   const factory = await deploy("LongVaultFactory", implementation.address)  
   const factoryAddress = factory.address;
+
+  saveFrontendFiles(implementation, factory);
   
   console.log(`Deployer: ${deployerAddress}`);
   console.log(`Deployed LongVault (Implementation): ${implementationAddress}`);
   console.log(`Deployed LongVaultFactory: ${factoryAddress}`);
-
-  saveFrontendFiles(implementation, factory);
 }
 
 
