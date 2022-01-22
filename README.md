@@ -13,12 +13,19 @@ Install dependencies:
 ```
 npm install
 ```
+
 Start local Hardhat network:
 ```
-npx hardhart node
-```
-Deploy contracts to local network (in a new terminal, in the root directory):
-```
-npx hardhat run scripts/deploy.js --network localhost
+npx hardhart node --watch
 ```
 
+Install frontend dependencies:
+```
+cd frontend
+npm install
+```
+
+Start frontend dev server:
+```
+npm run dev
+```

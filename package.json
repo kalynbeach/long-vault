@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
+    "test": "npx hardhat test",
+    "node": "npx hardhat node --watch",
+    "frontend": "cd frontend && npm run start",
     "compile": "hardhat compile",
-    "compile:test": "hardhat compile && hardhat test",
-    "test": "hardhat test"
+    "compile:test": "hardhat compile && hardhat test"
   },
   "keywords": [],
   "author": "Kalyn Beach",
