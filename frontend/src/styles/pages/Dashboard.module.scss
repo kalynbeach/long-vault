@@ -1,0 +1,26 @@
+.Dashboard {
+  width: 100%;
+  padding: 1rem;
+}
+
+.Dashboard-header {
+  min-height: 4rem;
+  margin: 0 0 1rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.Dashboard-header h2 {
+  margin: 0;
+}
+
+.Dashboard-factory-address {
+  padding: 0.64rem 1rem;
+  background-color: #202f4e;
+  border: 1px solid #3c5994;
+  border-radius: 3px;
+  font-weight: bold;
+  cursor: pointer;
+}
