@@ -20,3 +20,15 @@
 # Reference
 
 * [@symfoni/hardhat-react](https://www.npmjs.com/package/@symfoni/hardhat-react)
+* [git-subtree](https://www.atlassian.com/git/tutorials/git-subtree)
+
+
+# Git Subtree Commands
+
+Update subtree repo (frontend) from remote:
+```
+git fetch frontend-origin main
+```
+```
+git subtree pull --prefix frontend frontend-origin main [--squash]
+```
